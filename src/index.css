@@ -1,0 +1,18 @@
+@import "tailwindcss";
+
+@theme {
+  --color-artemisa: #D1B3FF;
+}
+
+/* Reseteo para que la web se vea limpia y profesional */
+@layer base {
+  body {
+    @apply m-0 p-0 bg-white text-slate-900 antialiased;
+    font-family: system-ui, -apple-system, sans-serif;
+  }
+}
+
+/* Esto quita los bordes negros automáticos de los botones que se ven en tu imagen */
+button {
+  @apply cursor-pointer border-none bg-transparent;
+}
