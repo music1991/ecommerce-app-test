@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 
 import { MOCK_PRODUCTS } from '../api/products.mock';
 import { Laptop, Filter, ChevronRight } from 'lucide-react';

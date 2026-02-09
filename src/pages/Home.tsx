@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Hero } from '../components/sections/Hero';
 import { Features } from '../components/sections/Features';

@@ -9,7 +9,6 @@ import {
   Laptop, 
   Cpu, 
   ChevronDown, 
-  Settings,
   LayoutDashboard
 } from "lucide-react";
 

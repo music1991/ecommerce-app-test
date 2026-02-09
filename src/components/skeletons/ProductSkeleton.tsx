@@ -1,5 +1,3 @@
-import React from 'react';
-
 export const ProductSkeleton = () => {
   return (
     <div className="bg-white rounded-[2.5rem] p-4 border border-slate-100 shadow-sm animate-pulse w-full">
