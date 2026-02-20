@@ -1,39 +1,62 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { LanguageProvider } from './context/LanguageContext';
-import { Navbar } from './components/layout/Navbar';
-import { Home } from './pages/Home';
-import { ProductDetail } from './pages/ProductDetail';
-import { Cart } from './pages/Cart'; // 1. Importamos la nueva página
-import { Footer } from './components/layout/Footer';
-import { CategoryPage } from './pages/CategoryPage';
-import { SearchPage } from './pages/SearchPage';
-import { AdminPage } from './pages/AdminPage';
+// src/App.tsx
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { useAuthStore } from './features/auth/store/authStore';
+
+// Layouts
+import { MainLayout } from './shared/layout/MainLayout'; // Tiene Navbar y Footer
+
+// Páginas
+import { Home } from './features/home/pages/Home';
+import { LoginPage } from './features/auth/pages/LoginPage';
+import { AdminPage } from './features/admin/pages/AdminPage'; // Gestión de productos
+import { ProtectedRoute } from './features/auth/components/ProtectedRoute';
+import { ProductsManagement } from './features/admin/pages/ProductsManagement';
+import { ProductDetail } from './features/products/pages/ProductDetail';
+import { CategoryPage } from './features/products/pages/CategoryPage';
+import { EmployeeManagement } from './features/admin/pages/EmployeeManagement';
+import { ClientManagement } from './features/admin/pages/ClientManagement';
+import { Cart } from './features/cart/pages/Cart';
+import { SalePendingDetail } from './features/sales/pages/SalePendingDetail';
+import { SalesPendingList } from './features/sales/pages/SalesPendingList';
+import { AdminLayout } from './shared/layout/AdminLayout';
+import { RegisterCustomerPage } from './features/customer/pages/RegisterCustomerPage';
 
 function App() {
-  return (
-    <LanguageProvider>
-      <Router>
-        {/* Cambiamos el div principal para que sea un contenedor Flex vertical */}
-        <div className="flex flex-col min-h-screen bg-white">
-          <Navbar />
-          
-          {/* El flex-1 hace que este main crezca y empuje al footer hacia abajo */}
-          <main className="flex-1">
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/product/:id" element={<ProductDetail />} />
-              <Route path="/cart" element={<Cart />} />
-              <Route path="/category/laptops" element={<CategoryPage categoryName="Laptops" />} />
-<Route path="/category/monitors" element={<CategoryPage categoryName="Monitors" />} />
-<Route path="/search" element={<SearchPage />} />
-<Route path="/admin" element={<AdminPage />} />
-            </Routes>
-          </main>
+  const isAuth = useAuthStore((state) => state.isAuthenticated);
 
-          <Footer />
-        </div>
-      </Router>
-    </LanguageProvider>
+  return (
+    <Router>
+      <Routes>
+        <Route
+          path="/login"
+          element={!isAuth ? <LoginPage /> : <Navigate to="/" replace />}
+        />
+        <Route path="/customerRegister" element={<RegisterCustomerPage />} />
+        
+        <Route element={<MainLayout />}>
+          <Route
+            path="/"
+            element={isAuth ? <Home /> : <Navigate to="/login" replace />}
+          />
+          <Route path="/product/:id" element={<ProductDetail />} />
+          <Route path="/category/laptops" element={<CategoryPage categoryName="Laptops" />} />
+          <Route path="/cart" element={<Cart />} />
+        </Route>
+
+        <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
+          <Route element={<AdminLayout />}>
+            <Route path="/admin" element={<AdminPage />} />
+            <Route path="/admin/products" element={<ProductsManagement />} />
+            <Route path="/admin/employes" element={<EmployeeManagement />} />
+            <Route path="/admin/clients" element={<ClientManagement />} />
+            <Route path="/admin/sales/list" element={<SalesPendingList />} />
+            <Route path="/admin/sales/detail/:id" element={<SalePendingDetail />} />
+          </Route>
+        </Route>
+
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Router>
   );
 }
 
