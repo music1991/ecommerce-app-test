@@ -3,6 +3,7 @@ import { useAuthStore } from "../store/authStore";
 import { useNavigate } from "react-router-dom";
 import { MOCK_CUSTOMERS_AUTH_DB } from "../../../shared/mocks/customersAuth.mock";
 import { MOCK_STAFF_DB } from "../../../shared/mocks/staff.mock";
+import { ArrowRight } from "lucide-react"; // Importamos el icono
 
 export const LoginPage = () => {
   const [email, setEmail] = useState("");
@@ -62,11 +63,20 @@ export const LoginPage = () => {
   };
 
   const onGoRegister = () => navigation("/customerRegister");
-
-  console.log(MOCK_CUSTOMERS_AUTH_DB)
+  const onSkipLogin = () => navigation("/"); // Función para entrar como invitado
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#05070a] p-4 relative overflow-hidden">
+      {/* --- BOTÓN INVITADO (Esquina superior derecha) --- */}
+      <button
+        onClick={onSkipLogin}
+        className="absolute top-8 right-8 z-20 flex items-center gap-2 px-6 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-full text-white text-xs font-bold uppercase tracking-widest transition-all group active:scale-95"
+      >
+        Entrar como invitado
+        <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+      </button>
+
+      {/* Fondos de gradiente */}
       <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-900/20 rounded-full blur-[120px]"></div>
       <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-900/20 rounded-full blur-[120px]"></div>
 

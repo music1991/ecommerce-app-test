@@ -12,7 +12,7 @@ import {
   Send,
 } from "lucide-react";
 
-import { useSalesStore, type Sale, type SaleItem } from "../store/useSalesStore";
+import { useSalesStore, type Sale, type SaleItem } from "../../sales/store/useSalesStore";
 import { MOCK_PRODUCTS } from "../../products/services/products.mock"; 
 
 export const SalePendingDetail = () => {
@@ -182,13 +182,13 @@ export const SalePendingDetail = () => {
           </button> */}
 
           <button
-            onClick={() =>
+            onClick={() => {
               completeSale(sale.id, {
                 actorType: "empleado",
                 actorId: "emp-001",
                 actorName: "Empleado (Mock)",
               })
-            }
+            }}
             disabled={!canEdit}
             className="flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-xs bg-emerald-600 text-green-500 hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
           >

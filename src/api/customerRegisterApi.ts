@@ -4,7 +4,7 @@
 // ========================================
 
 import { MOCK_CUSTOMERS_AUTH_DB, type CustomerAuthUser } from "../shared/mocks/customersAuth.mock";
-import type { CustomerRegisterPayload, CustomerRegisterResponse } from "./types/customer";
+import type { CustomerRegisterPayload, CustomerRegisterResponse } from "./types/customer.types";
 
 
 export async function registerCustomer(

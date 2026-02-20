@@ -8,6 +8,11 @@ export type StaffUser = {
   password: string;
   role: StaffRole;
   status: Status;
+  phone: string;
+  address: string;
+  dni: string,
+  position: string;
+  startDate: string;
 };
 
 export const MOCK_STAFF_DB: Record<string, StaffUser> = {
@@ -18,6 +23,11 @@ export const MOCK_STAFF_DB: Record<string, StaffUser> = {
     password: "Admin.123",
     role: "admin",
     status: "active",
+    phone: "42525",
+    address: "aa",
+    dni: "333",
+    position: "aa",
+    startDate: "20/10/2025",
   },
   "emp@techstore.com": {
     id: "2",
@@ -26,5 +36,10 @@ export const MOCK_STAFF_DB: Record<string, StaffUser> = {
     password: "Emp.1234",
     role: "employee",
     status: "active",
+    phone: "42525",
+    address: "aa",
+    dni: "2",
+        position: "aa",
+    startDate: "20/10/2025",
   },
 };

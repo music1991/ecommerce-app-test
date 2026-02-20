@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, ShoppingBag, Users, CreditCard, LogOut, ChevronRight, Home } from 'lucide-react';
+import { LayoutDashboard, ShoppingBag, Users, CreditCard, UserRoundCog, ChevronRight, Home, BadgeDollarSign } from 'lucide-react';
 import { useAuthStore } from '../../auth/store/authStore';
 
 export const AdminSidebar = () => {
@@ -7,16 +7,17 @@ export const AdminSidebar = () => {
 
   const menuItems = [
     { path: '/admin', icon: LayoutDashboard, label: 'Dashboard' },
+    { path: '/admin/employes', icon: UserRoundCog, label: 'Empleados' },
     { path: '/admin/products', icon: ShoppingBag, label: 'Productos' },
     { path: '/admin/clients', icon: Users, label: 'Clientes' },
-    { path: '/admin/employes', icon: Users, label: 'Empleados' },
-    { path: '/admin/sales/list', icon: CreditCard, label: 'Ventas' },
+
+    { path: '/admin/sales/list', icon: BadgeDollarSign, label: 'Ventas' },
   ];
 
   return (
     <aside className="w-64 bg-slate-950 border-r border-white/5 flex flex-col h-screen sticky top-0">
       <div className="p-8">
-        <h2 className="text-white font-black text-xl tracking-tighter">ADMIN<span className="text-blue-600">PANEL</span></h2>
+        <h2 className="text-white font-black text-xl tracking-tighter">GESTION <span className="text-blue-600">PANEL</span></h2>
       </div>
 
       <nav className="flex-1 px-4 space-y-2">

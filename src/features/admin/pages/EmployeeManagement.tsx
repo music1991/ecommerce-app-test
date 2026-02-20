@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Briefcase, Plus } from "lucide-react";
+import { Briefcase, Plus, UserRoundCog } from "lucide-react";
 import { EmployeeTable } from "../components/EmployeeTable";
 import { EmployeeForm } from "../components/EmployeeForm";
 import { Modal } from "../../../shared/modals/Modal";
@@ -26,10 +26,21 @@ export const EmployeeManagement = () => {
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-black text-slate-800 tracking-tighter">RRHH</h1>
+
+
+<div className="flex items-center gap-4">
+  <div className="bg-blue-600 p-3 rounded-2xl text-white shadow-lg shadow-emerald-600/20">
+    <UserRoundCog size={28} />
+  </div>
+  <div>
+    <h1 className="text-3xl font-black text-slate-800 tracking-tighter">Empleados</h1>
+    <p className="text-slate-500 font-medium">Control de personal y roles del equipo.</p>
+  </div>
+</div>
+
         <button 
           onClick={() => { setSelectedEmployee(null); setIsFormOpen(true); }}
-          className="flex items-center gap-2 px-6 py-3 bg-slate-900 text-white rounded-xl font-bold hover:bg-black"
+          className="flex items-center gap-2 px-6 py-3 !bg-blue-600 text-white rounded-xl font-bold hover:bg-black"
         >
           <Plus size={20} /> Nuevo Empleado
         </button>
@@ -48,7 +59,8 @@ export const EmployeeManagement = () => {
       <DeleteConfirmModal 
         isOpen={isDeleteOpen} 
         onClose={() => setIsDeleteOpen(false)} 
-        productName={selectedEmployee?.name} 
+        item={selectedEmployee?.name} 
+        textConfirm="empleado"
         onConfirm={() => {
           setEmployees(prev => prev.filter(e => e.id !== selectedEmployee.id));
           setIsDeleteOpen(false);

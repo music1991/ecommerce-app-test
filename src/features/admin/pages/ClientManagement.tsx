@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Users, Plus } from "lucide-react";
+import { useState } from "react";
+import { Plus } from "lucide-react";
 import { ClientTable } from "../components/ClientTable";
 import { CustomerForm } from "../components/CustomerForm";
 import { Modal } from "../../../shared/modals/Modal";
@@ -32,13 +32,12 @@ export const ClientManagement = () => {
         </div>
         <button 
           onClick={() => { setSelectedClient(null); setIsFormOpen(true); }}
-          className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700"
+          className="flex items-center gap-2 px-6 py-3 !bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700"
         >
           <Plus size={20} /> Nuevo Cliente
         </button>
       </div>
 
-      {/* Solo pasamos data y funciones de acción */}
       <ClientTable 
         data={clients} 
         onEdit={(c) => { setSelectedClient(c); setIsFormOpen(true); }} 
@@ -52,11 +51,12 @@ export const ClientManagement = () => {
       <DeleteConfirmModal 
         isOpen={isDeleteOpen} 
         onClose={() => setIsDeleteOpen(false)} 
-        productName={selectedClient?.name} 
+        item={selectedClient?.name} 
         onConfirm={() => {
           setClients(prev => prev.filter(c => c.id !== selectedClient.id));
           setIsDeleteOpen(false);
         }} 
+        textConfirm="cliente"
       />
     </div>
   );

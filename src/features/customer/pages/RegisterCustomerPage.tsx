@@ -4,7 +4,7 @@ import { registerCustomer } from "../../../api/customerRegisterApi";
 import PasswordRequirements from "../../../shared/components/PasswordRequirement";
 import PasswordInput from "../../../shared/components/PasswordInput";
 import { useNavigate } from "react-router-dom";
-import type { CustomerStatus } from "../../../api/types/customer";
+import type { CustomerStatus } from "../../../api/types/customer.types";
 
 export const RegisterCustomerPage = () => {
   const navigation = useNavigate();
