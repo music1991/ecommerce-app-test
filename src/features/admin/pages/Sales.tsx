@@ -1,4 +1,4 @@
-import { Plus, Search } from "lucide-react";
+import { BadgeDollarSign, Plus, Search } from "lucide-react";
 import { Modal } from "../../../shared/modals/Modal";
 import { DeleteConfirmModal } from "../components/DeleteConfirmModal";
 import { useNavigate } from "react-router-dom";
@@ -128,9 +128,15 @@ export const Sales = () => {
 // Pequeños componentes auxiliares para no ensuciar el render principal
 const Header = ({ onAdd }: { onAdd: () => void }) => (
   <div className="flex justify-between items-center">
-    <div>
-      <h1 className="text-3xl font-black text-slate-800 tracking-tighter">Ventas</h1>
-      <p className="text-slate-500 font-medium">Gestión de carritos y derivaciones activas.</p>
+    <div className="flex items-center gap-4">
+      {/* Color Indigo para diferenciarlo de Catálogo (Azul) y Clientes (Esmeralda) */}
+      <div className="bg-blue-600 p-3 rounded-2xl text-white shadow-lg shadow-indigo-600/20">
+        <BadgeDollarSign size={28} />
+      </div>
+      <div>
+        <h1 className="text-3xl font-black text-slate-800 tracking-tighter">Ventas</h1>
+        <p className="text-slate-500 font-medium">Control de ingresos, pedidos y facturación en tiempo real.</p>
+      </div>
     </div>
     <button onClick={onAdd} className="flex items-center gap-2 px-6 py-3 !bg-blue-600 text-white rounded-xl font-bold hover:bg-black">
       <Plus size={20} /> Crear Venta

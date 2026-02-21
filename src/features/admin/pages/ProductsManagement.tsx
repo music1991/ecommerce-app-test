@@ -1,18 +1,19 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Plus, Package } from "lucide-react";
 import { Modal } from "../../../shared/modals/Modal";
 import { ProductTable } from "../components/ProductTable";
 import { ProductForm } from "../components/ProductForm";
 
-import { listProducts, createProduct, updateProduct, deactivateProduct } from "../../../api/productApi";
-import { DeleteConfirmModal } from "../components/DeleteConfirmModal";
+import { listProducts, createProduct, updateProduct, deactivateProduct } from "../../../api/product.service";
 import { DesactiveConfirmModal } from "../components/DesactiveConfirmModal";
+import { ActivateConfirmModal } from "../components/ActiveConfirmModal";
 
 export const ProductsManagement = () => {
   const [products, setProducts] = useState<any[]>([]);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [isActivateOpen, setIsActivateOpen] = useState(false); // 2. Estado para el modal de activación
 
   useEffect(() => {
     (async () => {
@@ -39,20 +40,18 @@ export const ProductsManagement = () => {
     setIsFormOpen(true);
   };
 
-
-  const openDeleteConfirm = (product: any) => {
+  // 3. Lógica para decidir qué modal abrir (Activar o Desactivar)
+  const handleToggleStatus = (product: any) => {
+    setSelectedProduct(product);
     if (product.active) {
-      setSelectedProduct(product);
       setIsDeleteOpen(true);
+    } else {
+      setIsActivateOpen(true);
     }
-    
-    return;
   };
 
-  // 2. Crea la función que ejecuta la desactivación real
   const handleConfirmDeactivate = async () => {
     if (!selectedProduct) return;
-
     const res = await deactivateProduct(selectedProduct.id);
     if (!res.success) return alert(res.message);
 
@@ -60,6 +59,20 @@ export const ProductsManagement = () => {
       prev.map((p) => (p.id === selectedProduct.id ? { ...p, active: false } : p))
     );
     setIsDeleteOpen(false);
+  };
+
+  // 4. Nueva función para confirmar la reactivación
+  const handleConfirmActivate = async () => {
+    if (!selectedProduct) return;
+    
+    // Usamos updateProduct para volver a poner active en true
+    const res = await updateProduct(selectedProduct.id, { active: true });
+    if (!res.success || !res.data) return alert(res.message);
+
+    setProducts((prev) =>
+      prev.map((p) => (p.id === selectedProduct.id ? res.data! : p))
+    );
+    setIsActivateOpen(false);
   };
 
   return (
@@ -77,7 +90,7 @@ export const ProductsManagement = () => {
 
         <button
           onClick={() => openForm()}
-          className="flex items-center gap-2 px-6 py-3 !bg-blue-600 text-white rounded-xl font-bold hover:bg-black"
+          className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-black transition-all"
         >
           <Plus size={20} /> Nuevo Producto
         </button>
@@ -86,7 +99,7 @@ export const ProductsManagement = () => {
       <ProductTable
         data={products}
         onEdit={openForm}
-        onDelete={openDeleteConfirm}
+        onDelete={handleToggleStatus} // Pasamos la nueva lógica de toggle
       />
 
       <Modal
@@ -104,7 +117,7 @@ export const ProductsManagement = () => {
               min_stock: 0,
               barcode: "",
               active: true,
-              category: "Laptops",
+              category: "",
               images: [],
               specs: {},
             }
@@ -113,12 +126,23 @@ export const ProductsManagement = () => {
           onCancel={() => setIsFormOpen(false)}
         />
       </Modal>
+
+      {/* Modal de Desactivación */}
       <DesactiveConfirmModal
         isOpen={isDeleteOpen}
         onClose={() => setIsDeleteOpen(false)}
         item={selectedProduct?.name}
         textConfirm="producto"
         onConfirm={handleConfirmDeactivate}
+      />
+
+      {/* 5. Añadimos el Modal de Activación al final */}
+      <ActivateConfirmModal
+        isOpen={isActivateOpen}
+        onClose={() => setIsActivateOpen(false)}
+        item={selectedProduct?.name}
+        textConfirm="producto"
+        onConfirm={handleConfirmActivate}
       />
     </div>
   );

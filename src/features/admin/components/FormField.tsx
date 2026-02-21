@@ -7,9 +7,10 @@ interface FormFieldProps {
   type?: string;
   required?: boolean;
   className?: string;
+  placeholder?: string;
 }
 
-export const FormField = ({ label, value, onChange, type = "text", required, className }: FormFieldProps) => (
+export const FormField = ({ label, value, onChange, type = "text", required, className, placeholder }: FormFieldProps) => (
   <div className={`space-y-2 ${className}`}>
     <label className="text-sm font-bold text-slate-600 ml-1">{label}</label>
     <input
@@ -17,6 +18,7 @@ export const FormField = ({ label, value, onChange, type = "text", required, cla
       type={type}
       className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 outline-none focus:ring-2 focus:ring-blue-500/20 transition-all"
       value={value}
+      placeholder={placeholder}
       onChange={(e) => onChange(e.target.value)}
     />
   </div>

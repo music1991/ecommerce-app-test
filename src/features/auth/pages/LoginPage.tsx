@@ -134,16 +134,16 @@ export const LoginPage = () => {
         </form>
 
         <div className="mt-10 flex flex-col space-y-4 text-center">
-          <div className="pt-6 border-t border-white/5">
+          <div className="pt-6 border border-white">
             <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-2 font-bold">
               Usuarios de prueba:
             </p>
-            <div className="flex flex-wrap justify-center gap-2 text-[9px] text-gray-400">
+            <div className="flex flex-wrap justify-center gap-2 text-[16px] text-gray-400">
               <span className="bg-white/5 px-2 py-1 rounded">admin@techstore.com</span>
               <span className="bg-white/5 px-2 py-1 rounded">emp@techstore.com</span>
               <span className="bg-white/5 px-2 py-1 rounded">user@techstore.com</span>
             </div>
-            <p className="text-[9px] text-gray-500 mt-2">
+            <p className="text-[16px] text-white mt-2">
               (Passwords mock: Admin.123 / Emp.1234 / User.1234)
             </p>
           </div>

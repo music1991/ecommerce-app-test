@@ -1,6 +1,6 @@
-import React, { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
-import { registerCustomer } from "../../../api/customerRegisterApi";
+import { registerCustomer } from "../../../api/customer.service";
 import PasswordRequirements from "../../../shared/components/PasswordRequirement";
 import PasswordInput from "../../../shared/components/PasswordInput";
 import { useNavigate } from "react-router-dom";
@@ -101,7 +101,7 @@ export const RegisterCustomerPage = () => {
 
   const canSubmit = !submitting && form.name.trim() && form.email.trim() && allPwOk;
 
-      const onGoToLogin = () => navigation("/");
+  const onGoToLogin = () => navigation("/login");
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#05070a] p-4 relative overflow-hidden">

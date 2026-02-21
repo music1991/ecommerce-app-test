@@ -2,7 +2,6 @@ export type ProductStatusFilter = "active" | "inactive" | "all";
 
 export type ProductPublic = {
   id: string;
-
   tenant_id: string;
 
   name: string;
@@ -17,8 +16,12 @@ export type ProductPublic = {
 
   active: boolean;
 
-  // UI (tu catálogo actual)
-  category?: string;
+  /** 
+   * Referencia al ID de la categoría (ej: "cat-1") 
+   * Vinculado al módulo de Catálogo > Categorías
+   */
+  category?: string; 
+  
   images?: string[];
   isNew?: boolean;
 
@@ -30,10 +33,13 @@ export type ProductSpecs = Record<string, string>;
 
 export type ProductWithDetails = ProductPublic & {
   longDescription?: string;
-  specs?: ProductSpecs; // agregado desde la "tabla" specs
+  specs?: ProductSpecs; // Agregado desde la "tabla" specs en el mock
 };
 
-// Create/Update payloads
+// ========================================
+// Create/Update Payloads
+// ========================================
+
 export type CreateProductPayload = {
   name: string;
   description?: string;
@@ -45,20 +51,25 @@ export type CreateProductPayload = {
   barcode?: string;
   active?: boolean;
 
-  // UI
-  category?: string;
+  // UI & Catálogo
+  category?: string; // Se envía el ID de la categoría seleccionada
   images?: string[];
   isNew?: boolean;
   longDescription?: string;
 
-  // specs separados
+  // Specs detallados
   specs?: ProductSpecs;
 };
 
 export type UpdateProductPayload = Partial<CreateProductPayload>;
 
+// ========================================
+// Query & API Response
+// ========================================
+
 export type ProductsQuery = {
   search?: string;
+  category?: string; // ✅ Agregado: para filtrar por ID de categoría en el listado
   status?: ProductStatusFilter; // active/inactive/all
 };
 

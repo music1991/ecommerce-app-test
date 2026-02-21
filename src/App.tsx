@@ -12,7 +12,7 @@ import { AdminPage } from './features/admin/pages/AdminPage'; // Gestión de pro
 import { ProtectedRoute } from './features/auth/components/ProtectedRoute';
 import { ProductsManagement } from './features/admin/pages/ProductsManagement';
 import { ProductDetail } from './features/products/pages/ProductDetail';
-import { CategoryPage } from './features/products/pages/CategoryPage';
+import { CategoriesManagement } from './features/products/pages/CategoriesManagement';
 import { EmployeeManagement } from './features/admin/pages/EmployeeManagement';
 import { ClientManagement } from './features/admin/pages/ClientManagement';
 import { Cart } from './features/cart/pages/Cart';
@@ -46,7 +46,8 @@ function App() {
         <Route element={<MainLayout />}>
           <Route path="/" element={<Home />} />
           <Route path="/product/:id" element={<ProductDetail />} />
-          <Route path="/category/laptops" element={<CategoryPage categoryName="Laptops" />} />
+          
+      {/*     <Route path="/category/laptops" element={<CategoriesManagement categoryName="Laptops" />} /> */}
           <Route path="/cart" element={<Cart />} />
         </Route>
 
@@ -59,6 +60,7 @@ function App() {
             <Route path="/admin/clients" element={<ClientManagement />} />
             <Route path="/admin/sales/list" element={<Sales />} />
             <Route path="/admin/sales/detail/:id" element={<SalePendingDetail />} />
+            <Route path="/admin/categories" element={<CategoriesManagement />} />
           </Route>
         </Route>
 

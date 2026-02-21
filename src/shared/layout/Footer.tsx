@@ -1,4 +1,5 @@
 import { Facebook, Instagram, Twitter, Mail, MapPin, Phone } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export const Footer = () => {
   return (
@@ -22,8 +23,8 @@ export const Footer = () => {
             <h3 className="text-white font-bold mb-6">Tienda</h3>
             <ul className="space-y-4 text-sm">
               <li><a href="/" className="hover:text-white transition-colors">Inicio</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Productos</a></li>
-              <li><a href="/cart" className="hover:text-white transition-colors">Mi Carrito</a></li>
+ {/*              <li><a href="#" className="hover:text-white transition-colors">Productos</a></li> */}
+              <li><Link to="/cart" className="hover:text-white transition-colors">Mi Carrito</Link></li>
             </ul>
           </div>
 
@@ -53,11 +54,11 @@ export const Footer = () => {
         </div>
 
         <div className="border-t border-slate-900 mt-16 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs uppercase tracking-widest font-bold">
-          <p>© 2026 TechStore - Hecho con Clean Architecture</p>
-          <div className="flex gap-8">
+          <p>© 2026 TechStore</p>
+{/*           <div className="flex gap-8">
             <span className="text-slate-600">Secure Payments</span>
             <span className="text-slate-600">Global Shipping</span>
-          </div>
+          </div> */}
         </div>
       </div>
     </footer>

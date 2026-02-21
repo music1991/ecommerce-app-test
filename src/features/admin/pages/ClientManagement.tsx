@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus } from "lucide-react";
+import { Plus, Users } from "lucide-react";
 import { ClientTable } from "../components/ClientTable";
 import { CustomerForm } from "../components/CustomerForm";
 import { Modal } from "../../../shared/modals/Modal";
@@ -26,10 +26,15 @@ export const ClientManagement = () => {
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-8">
-        <div>
-          <h1 className="text-3xl font-black text-slate-800">Clientes</h1>
-          <p className="text-slate-500">Administra tu base de contactos.</p>
-        </div>
+<div className="flex items-center gap-4">
+  <div className="bg-blue-600 p-3 rounded-2xl text-white shadow-lg shadow-emerald-600/20">
+    <Users size={28} />
+  </div>
+  <div>
+    <h1 className="text-3xl font-black text-slate-800 tracking-tighter">Clientes</h1>
+    <p className="text-slate-500 font-medium">Gestiona el directorio de compradores y su historial.</p>
+  </div>
+</div>
         <button 
           onClick={() => { setSelectedClient(null); setIsFormOpen(true); }}
           className="flex items-center gap-2 px-6 py-3 !bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700"

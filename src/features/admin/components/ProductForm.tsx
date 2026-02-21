@@ -1,22 +1,37 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { FormField } from "./FormField";
 import { SpecsEditor } from "./SpecsEditor";
+import { getCategories } from "../../../api/category.service";
+
 
 export const ProductForm = ({ initialData, onSave, onCancel }: any) => {
   const isEdit = !!initialData?.id;
+  
+  // Estado para las categorías del dropdown
+  const [categories, setCategories] = useState([]);
+
+  // Cargar categorías al montar el componente
+  useEffect(() => {
+    const fetchCategories = async () => {
+      const data = await getCategories();
+      setCategories(data);
+    };
+    fetchCategories();
+  }, []);
 
   const normalizedInitial = useMemo(() => {
     const images = initialData?.images?.length
       ? initialData.images
       : initialData?.image
-      ? [initialData.image]
-      : [];
+        ? [initialData.image]
+        : [];
     return {
       ...initialData,
       images,
       active: initialData?.active ?? true,
       min_stock: initialData?.min_stock ?? 0,
       barcode: initialData?.barcode ?? "",
+      category: initialData?.category ?? "", // Aquí guardaremos el ID (cat-1, etc)
     };
   }, [initialData]);
 
@@ -24,14 +39,15 @@ export const ProductForm = ({ initialData, onSave, onCancel }: any) => {
   const [specs, setSpecs] = useState(
     formData.specs
       ? Object.entries(formData.specs).map(([key, value]) => ({
-          key,
-          value: String(value),
-        }))
+        key,
+        value: String(value),
+      }))
       : [{ key: "", value: "" }]
   );
 
   const canSubmit =
     !!String(formData.name ?? "").trim() &&
+    !!formData.category && // Validamos que tenga categoría seleccionada
     Number(formData.price ?? 0) >= 0 &&
     Number(formData.stock ?? 0) >= 0;
 
@@ -59,10 +75,8 @@ export const ProductForm = ({ initialData, onSave, onCancel }: any) => {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col h-full max-w-6xl mx-auto">
-      {/* Contenedor de dos columnas */}
       <div className="flex flex-col md:flex-row gap-8">
-        
-        {/* COLUMNA IZQUIERDA: Datos Básicos */}
+
         <div className="flex-1 space-y-6">
           <div className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-200">
             <img
@@ -86,11 +100,26 @@ export const ProductForm = ({ initialData, onSave, onCancel }: any) => {
               onChange={(v) => setFormData({ ...formData, name: v })}
               required
             />
-            <FormField
-              label="Categoría"
-              value={formData.category}
-              onChange={(v) => setFormData({ ...formData, category: v })}
-            />
+            
+            {/* --- REEMPLAZO DE CATEGORÍA POR DROPDOWN --- */}
+            <div className="space-y-2">
+              <label className="text-sm font-bold text-slate-600 ml-1">Categoría</label>
+              <select
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 outline-none focus:ring-2 focus:ring-blue-500/20 transition-all font-medium text-slate-700 h-[50px]"
+                value={formData.category}
+                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                required
+              >
+                <option value="">Seleccionar categoría...</option>
+                {categories.map((cat: any) => (
+                  <option key={cat.id} value={cat.id}>
+                    {cat.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            {/* ------------------------------------------- */}
+
             <FormField
               label="Precio"
               type="number"
@@ -98,7 +127,7 @@ export const ProductForm = ({ initialData, onSave, onCancel }: any) => {
               onChange={(v) => setFormData({ ...formData, price: Number(v) })}
               required
             />
-             <FormField
+            <FormField
               label="Stock Actual"
               type="number"
               value={formData.stock}
@@ -129,7 +158,6 @@ export const ProductForm = ({ initialData, onSave, onCancel }: any) => {
           </label>
         </div>
 
-        {/* COLUMNA DERECHA: Descripción y Specs */}
         <div className="flex-1 space-y-6 border-l border-slate-100 md:pl-8">
           <div className="space-y-2">
             <label className="text-sm font-bold text-slate-600 ml-1">
@@ -150,11 +178,8 @@ export const ProductForm = ({ initialData, onSave, onCancel }: any) => {
         </div>
       </div>
 
-      {/* Footer fijo con botones */}
       <div className="flex gap-4 pt-8 mt-8 border-t border-slate-100">
-
-
-                <button
+        <button
           type="submit"
           disabled={!canSubmit}
           className="w-1/2 py-4 !bg-slate-900 text-white rounded-2xl font-bold disabled:opacity-50 disabled:cursor-not-allowed"

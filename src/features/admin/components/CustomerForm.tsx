@@ -227,7 +227,7 @@ export const CustomerForm = ({ initialData, onSave, onCancel }: any) => {
           disabled={!canSubmit}
           className="w-1/2 py-4 !bg-slate-900 text-white rounded-2xl font-bold disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {isEdit ? "Guardar cambios" : "Registrar cliente"}
+          {isEdit ? "Guardar cambios" : "Crear cliente"}
         </button>
 
         <button
