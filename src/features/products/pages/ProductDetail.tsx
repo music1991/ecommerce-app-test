@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { useCartStore } from '../../cart/store/useCartStore'; 
-import { ShoppingCart, Check, ArrowLeft, Truck, ShieldCheck } from 'lucide-react';
+import { ShoppingCart, Check, ArrowLeft, Truck, ShieldCheck, Star } from 'lucide-react';
 import { MOCK_PRODUCTS } from '../services/products.mock';
 
 export const ProductDetail = () => {
@@ -15,7 +15,11 @@ export const ProductDetail = () => {
 
   const product = MOCK_PRODUCTS.find(p => p.id === id);
 
-  if (!product) return <div style={{ paddingTop: '100px', textAlign: 'center' }}>Producto no encontrado</div>;
+  if (!product) return (
+    <div className="pt-32 text-center h-screen font-bold text-slate-500">
+      Producto no encontrado
+    </div>
+  );
 
   const handleAddToCart = () => {
     useCartStore.getState().addToCart(product);
@@ -24,131 +28,119 @@ export const ProductDetail = () => {
   };
 
   return (
-    <div style={{ paddingTop: '120px', paddingBottom: '80px', minHeight: '100vh', backgroundColor: '#ffffff' }}>
-      <div className="container mx-auto px-4">
+    <div className="bg-white min-h-screen pb-20 pt-28">
+      <div className="max-w-7xl mx-auto px-6">
         
+        {/* Botón Volver - Más sutil */}
         <button 
           onClick={() => navigate(-1)} 
-          style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#64748b', fontWeight: 'bold', border: 'none', background: 'none', cursor: 'pointer', marginBottom: '40px' }}
+          className="flex items-center gap-2 text-slate-400 hover:text-slate-900 transition-colors mb-10 group"
         >
-          <ArrowLeft size={20} /> Volver a la tienda
+          <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
+          <span className="text-sm font-bold uppercase tracking-wider">Volver a la tienda</span>
         </button>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
+        {/* Sección Principal: Imagen + Info Corta */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 mb-24">
           
-          <div style={{ borderRadius: '32px', overflow: 'hidden', backgroundColor: '#f1f5f9', border: '1px solid #e2e8f0' }}>
-            <img 
-              src={product.images[0]} 
-              alt={product.name} 
-              style={{ width: '100%', height: 'auto', display: 'block', objectFit: 'cover' }} 
-            />
+          {/* Contenedor Imagen - Ocupa 7 columnas */}
+          <div className="lg:col-span-7">
+            <div className="bg-slate-50 rounded-[2.5rem] overflow-hidden border border-slate-100 sticky top-32">
+              <img 
+                src={product.images[0]} 
+                alt={product.name} 
+                className="w-full h-[600px] object-cover hover:scale-105 transition-transform duration-700" 
+              />
+            </div>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <span style={{ color: '#2563eb', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '1px', fontSize: '14px', marginBottom: '12px' }}>
-              {product.category || 'Premium Tech'}
-            </span>
+          {/* Información de Compra - Ocupa 5 columnas */}
+          <div className="lg:col-span-5 flex flex-col justify-center">
+    {/*         <div className="inline-flex items-center gap-2 mb-4">
+              <span className="bg-blue-50 text-blue-600 px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest">
+                {product.catego || 'Premium Tech'}
+              </span>
+              <div className="flex text-amber-400"><Star size={14} fill="currentColor" /></div>
+            </div> */}
             
-            <h1 style={{ fontSize: '48px', fontWeight: '900', color: '#0f172a', lineHeight: '1', marginBottom: '24px', letterSpacing: '-2px' }}>
+            <h1 className="text-5xl lg:text-6xl font-black text-slate-900 leading-[0.9] mb-6 tracking-tighter">
               {product.name}
             </h1>
             
-            <p style={{ fontSize: '18px', color: '#475569', lineHeight: '1.6', marginBottom: '40px' }}>
+            <p className="text-lg text-slate-500 leading-relaxed mb-8 border-l-4 border-slate-100 pl-6">
               {product.description}
             </p>
             
-            <div style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: '24px', 
-              paddingTop: '32px', 
-              borderTop: '2px solid #f1f5f9',
-              marginTop: 'auto'
-            }}>
-              <div style={{ flexShrink: 0 }}>
-                <p style={{ color: '#94a3b8', fontWeight: 'bold', fontSize: '12px', margin: 0, textTransform: 'uppercase' }}>Precio Total</p>
-                <p style={{ fontSize: '36px', fontWeight: '900', color: '#0f172a', margin: 0 }}>
-                  ${product.price.toLocaleString()}
-                </p>
+            {/* Caja de Acción de Precio */}
+            <div className="bg-slate-50 p-8 rounded-[2rem] border border-slate-100">
+              <div className="flex items-end justify-between mb-6">
+                <div>
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Inversión Total</p>
+                  <p className="text-4xl font-black text-slate-900">${product.price.toLocaleString()}</p>
+                </div>
+                <div className="text-green-500 text-xs font-bold bg-green-50 px-3 py-1 rounded-lg">En Stock</div>
               </div>
 
               <button 
                 onClick={handleAddToCart}
                 disabled={isAdded}
-                style={{
-                  flex: 1,
-                  height: '70px',
-                  backgroundColor: isAdded ? '#22c55e' : '#000000', 
-                  color: '#ffffff', 
-                  borderRadius: '20px',
-                  border: 'none',
-                  fontSize: '20px',
-                  fontWeight: '900',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '12px',
-                  transition: 'all 0.2s ease',
-                  boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
-                  opacity: 1,
-                  visibility: 'visible' 
-                }}
+                className={`w-full h-16 rounded-2xl flex items-center justify-center gap-3 text-lg font-black transition-all active:scale-95 shadow-xl shadow-slate-200 
+                  ${isAdded ? '!bg-green-500 text-white' : '!bg-slate-900 text-white hover:bg-black'}`}
               >
                 {isAdded ? (
-                  <>
-                    <Check size={24} strokeWidth={3} />
-                    ¡AGREGADO!
-                  </>
+                  <><Check size={22} strokeWidth={3} /> AGREGADO</>
                 ) : (
-                  <>
-                    <ShoppingCart size={24} strokeWidth={3} />
-                    COMPRAR AHORA
-                  </>
+                  <><ShoppingCart size={22} strokeWidth={3} /> COMPRAR AHORA</>
                 )}
               </button>
             </div>
           </div>
-          <section className="mt-20 border-t border-slate-100 pt-16">
-  <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-    
-    <div className="lg:col-span-2">
-      <h2 className="text-3xl font-black text-slate-900 mb-6 tracking-tight">
-        Descripción del Producto
-      </h2>
-      <p className="text-xl text-slate-500 leading-relaxed mb-8">
-        {product.longDescription || "No hay una descripción detallada para este producto."}
-      </p>
-      
-      <div className="flex flex-wrap gap-4 mt-12">
-        <div className="bg-blue-50 text-blue-700 px-6 py-4 rounded-2xl flex items-center gap-3 font-bold">
-           <ShieldCheck size={20} /> Garantía Premium
         </div>
-        <div className="bg-slate-50 text-slate-700 px-6 py-4 rounded-2xl flex items-center gap-3 font-bold">
-           <Truck size={20} /> Envío Express
-        </div>
-      </div>
-    </div>
 
-    <div className="bg-slate-900 rounded-[3rem] p-10 text-white shadow-2xl">
-      <h3 className="text-blue-400 font-black uppercase tracking-widest text-xs mb-8">
-        Ficha Técnica
-      </h3>
-      <div className="space-y-6">
-        {product.specs ? Object.entries(product.specs).map(([key, value]) => (
-          <div key={key} className="flex flex-col border-b border-white/10 pb-4 last:border-0">
-            <span className="text-slate-500 text-[10px] font-black uppercase mb-1">{key}</span>
-            <span className="text-white font-medium">{value}</span>
+        {/* Sección de Detalle: Descripción Larga + Specs */}
+        <section className="border-t border-slate-100 pt-20">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-16">
+            
+            <div className="lg:col-span-2">
+              <h2 className="text-3xl font-black text-slate-900 mb-8 tracking-tight">
+                Análisis Detallado
+              </h2>
+              <p className="text-xl text-slate-500 leading-relaxed mb-10">
+                {product.longDescription || "Experiencia de usuario de alto nivel con los mejores estándares de calidad del mercado."}
+              </p>
+              
+              <div className="flex flex-wrap gap-4">
+                <div className="bg-slate-50 border border-slate-100 text-slate-700 px-6 py-4 rounded-2xl flex items-center gap-3 font-bold hover:bg-white transition-colors">
+                  <ShieldCheck className="text-blue-500" size={24} /> 
+                  <div className="flex flex-col"><span className="text-[10px] uppercase opacity-50">Garantía</span><span>2 Años Oficial</span></div>
+                </div>
+                <div className="bg-slate-50 border border-slate-100 text-slate-700 px-6 py-4 rounded-2xl flex items-center gap-3 font-bold hover:bg-white transition-colors">
+                  <Truck className="text-blue-500" size={24} /> 
+                  <div className="flex flex-col"><span className="text-[10px] uppercase opacity-50">Envío</span><span>Gratis Express</span></div>
+                </div>
+              </div>
+            </div>
+
+            {/* Ficha Técnica */}
+            <div className="bg-slate-900 rounded-[2.5rem] p-10 text-white shadow-2xl relative overflow-hidden">
+              <div className="absolute top-0 right-0 p-8 opacity-10"><ShoppingCart size={80} /></div>
+              <h3 className="text-blue-400 font-black uppercase tracking-widest text-[10px] mb-8 relative z-10">
+                Especificaciones Técnicas
+              </h3>
+              <div className="space-y-6 relative z-10">
+                {product.specs ? Object.entries(product.specs).map(([key, value]) => (
+                  <div key={key} className="flex flex-col border-b border-white/10 pb-4 last:border-0">
+                    <span className="text-slate-500 text-[10px] font-black uppercase mb-1">{key}</span>
+                    <span className="text-white font-medium">{value}</span>
+                  </div>
+                )) : (
+                  <p className="text-slate-500 italic">Datos técnicos en proceso...</p>
+                )}
+              </div>
+            </div>
+
           </div>
-        )) : (
-          <p className="text-slate-500 italic">Especificaciones no disponibles</p>
-        )}
-      </div>
-    </div>
-
-  </div>
-</section>
-        </div>
+        </section>
       </div>
     </div>
   );
