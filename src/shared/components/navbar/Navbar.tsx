@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { Modal } from '../../modals/Modal';
 import { AuthRoles } from '../../../api/types/sales.types';
+import { MOCK_CATEGORIES_DB } from '../../mocks/catetory.mock';
 
 const DropdownItem = ({ to, label }: { to: string, label: string }) => (
   <Link
@@ -75,33 +76,41 @@ export const Navbar = () => {
           </div>
 
 
-          <div className="hidden lg:flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-slate-400 h-full">
+{/*  <div className="hidden lg:flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-slate-400 h-full">
             <div className="relative group h-full flex items-center px-4 cursor-pointer">
               <div className="flex items-center gap-2 group-hover:text-white transition-colors">
                 <Laptop size={16} className="text-blue-500" />
                 <span>Laptops</span>
-                <ChevronDown size={12} className="group-hover:rotate-180 transition-transform" />
+           <ChevronDown size={12} className="group-hover:rotate-180 transition-transform" /> 
               </div>
-              <div className="absolute top-[80px] left-0 w-48 bg-slate-950 border border-white/10 rounded-b-2xl py-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all shadow-2xl">
+            <div className="absolute top-[80px] left-0 w-48 bg-slate-950 border border-white/10 rounded-b-2xl py-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all shadow-2xl">
                 <DropdownItem to="/category/Laptops" label="Ver Todas" />
                 <DropdownItem to="/search?q=MacBook" label="MacBook" />
                 <DropdownItem to="/search?q=Gaming" label="Gaming Laptops" />
-              </div>
+              </div> 
             </div>
+          </div> */}
 
-            <div className="relative group h-full flex items-center px-4 cursor-pointer">
+           <div className="hidden lg:flex items-center gap-1 text-[11px] font-bold uppercase tracking-widest text-slate-400 h-full">
+    
+    {Object.values(MOCK_CATEGORIES_DB).map((category) => (
+      <Link
+        key={category.id}
+        to={`/category/${category.name.toLowerCase()}`}
+        className=""
+      >
+
+
+          <div className="relative group h-full flex items-center px-4 cursor-pointer">
               <div className="flex items-center gap-2 group-hover:text-white transition-colors">
-                <Monitor size={16} className="text-blue-500" />
-                <span>Monitors</span>
-                <ChevronDown size={12} className="group-hover:rotate-180 transition-transform" />
-              </div>
-              <div className="absolute top-[80px] left-0 w-48 bg-slate-950 border border-white/10 rounded-b-2xl py-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all shadow-2xl">
-                <DropdownItem to="/category/Monitors" label="Ver Todos" />
-                <DropdownItem to="/search?q=Ultrawide" label="Ultrawide" />
-                <DropdownItem to="/search?q=4K" label="4K / UHD" />
-              </div>
-            </div>
-          </div>
+                <Laptop size={16} className="text-blue-500" />
+                <span>{category.name}</span>
+                </div>
+                </div>
+      </Link>
+    ))}
+
+  </div>
 
           <form onSubmit={handleSearch} className="flex-1 max-w-md relative group hidden md:block">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-blue-500 transition-colors" size={18} />

@@ -90,7 +90,7 @@ export const ProductsManagement = () => {
 
         <button
           onClick={() => openForm()}
-          className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-black transition-all"
+          className="flex items-center gap-2 px-6 py-3 !bg-blue-600 text-white rounded-xl font-bold hover:bg-black transition-all"
         >
           <Plus size={20} /> Nuevo Producto
         </button>

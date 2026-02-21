@@ -5,15 +5,20 @@ import {
   ChevronRight, Home, BadgeDollarSign, ChevronDown, FolderTree, 
   ListFilterPlus
 } from 'lucide-react';
+import { useAuthStore } from '../../auth/store/authStore';
 
 export const AdminSidebar = () => {
   const location = useLocation();
   // Estado para controlar la apertura del submenú Catálogo
+    const { user } = useAuthStore();
   const [catalogOpen, setCatalogOpen] = useState(location.pathname.includes('/catalog'));
 
   const menuItems = [
     { path: '/admin', icon: LayoutDashboard, label: 'Dashboard' },
-    { path: '/admin/employes', icon: UserRoundCog, label: 'Empleados' },
+    ...(user?.role === 'admin' 
+      ? [{ path: '/admin/employes', icon: UserRoundCog, label: 'Empleados' }] 
+      : []),
+    /*     { path: '/admin/employes', icon: UserRoundCog, label: 'Empleados' }, */
     { 
       label: 'Catálogo', 
       icon: FolderTree, 

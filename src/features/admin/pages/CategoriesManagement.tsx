@@ -1,22 +1,33 @@
 import { useEffect, useState } from "react";
 import { FolderTree, Plus } from "lucide-react";
 import { Modal } from "../../../shared/modals/Modal";
-import { getCategories, createCategory, updateCategory, deleteCategory } from "../../../api/category.service";
 import { CategoryTable } from "../components/CategoryTable";
 import { CategoryForm } from "../components/CategoryForm";
+import { DeleteConfirmModal } from "../components/DeleteConfirmModal"; // Importamos el de eliminación
+
+// Importamos tus servicios de categoría
+import { 
+  getCategories, 
+  createCategory, 
+  updateCategory, 
+  deleteCategory 
+} from "../../../api/category.service";
 
 export const CategoriesManagement = () => {
   const [categories, setCategories] = useState<any[]>([]);
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<any>(null);
 
   const fetchCategories = async () => {
     const data = await getCategories();
-    setCategories(data);
+    // Manejo flexible por si la API devuelve el array directo o un objeto con data
+    setCategories(Array.isArray(data) ? data : data || []);
   };
 
   useEffect(() => { fetchCategories(); }, []);
 
+  // Guardar / Editar
   const handleSave = async (payload: any) => {
     if (selectedCategory?.id) {
       await updateCategory(selectedCategory.id, payload);
@@ -27,16 +38,26 @@ export const CategoriesManagement = () => {
     setIsFormOpen(false);
   };
 
-  const handleDelete = async (cat: any) => {
-    if (window.confirm(`¿Seguro que deseas eliminar ${cat.name}?`)) {
-      await deleteCategory(cat.id);
-      fetchCategories();
+  // Eliminación definitiva
+  const handleConfirmDelete = async () => {
+    if (!selectedCategory) return;
+    try {
+      await deleteCategory(selectedCategory.id);
+      setCategories(prev => prev.filter(c => c.id !== selectedCategory.id));
+      setIsDeleteOpen(false);
+    } catch (error) {
+      alert("Error al eliminar la categoría");
     }
   };
 
   const openForm = (cat = null) => {
     setSelectedCategory(cat);
     setIsFormOpen(true);
+  };
+
+  const openDelete = (cat: any) => {
+    setSelectedCategory(cat);
+    setIsDeleteOpen(true);
   };
 
   return (
@@ -51,16 +72,41 @@ export const CategoriesManagement = () => {
             <p className="text-slate-500 font-medium">Organiza tus productos por grupos.</p>
           </div>
         </div>
-        <button onClick={() => openForm()} className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-slate-900 transition-all">
+        <button 
+          onClick={() => openForm()} 
+          className="flex items-center gap-2 px-6 py-3 !bg-blue-600 text-white rounded-xl font-bold hover:bg-slate-900 transition-all shadow-md"
+        >
           <Plus size={20} /> Nueva Categoría
         </button>
       </div>
 
-      <CategoryTable data={categories} onEdit={openForm} onDelete={handleDelete} />
+      <CategoryTable 
+        data={categories} 
+        onEdit={openForm} 
+        onDelete={openDelete} 
+      />
 
-      <Modal isOpen={isFormOpen} onClose={() => setIsFormOpen(false)} title={selectedCategory ? "Editar Categoría" : "Nueva Categoría"}>
-        <CategoryForm initialData={selectedCategory} onSave={handleSave} onCancel={() => setIsFormOpen(false)} />
+      {/* Modal de Formulario */}
+      <Modal 
+        isOpen={isFormOpen} 
+        onClose={() => setIsFormOpen(false)} 
+        title={selectedCategory ? "Editar Categoría" : "Nueva Categoría"}
+      >
+        <CategoryForm 
+          initialData={selectedCategory} 
+          onSave={handleSave} 
+          onCancel={() => setIsFormOpen(false)} 
+        />
       </Modal>
+
+      {/* Modal de Confirmación de Eliminación */}
+      <DeleteConfirmModal
+        isOpen={isDeleteOpen}
+        onClose={() => setIsDeleteOpen(false)}
+        item={selectedCategory?.name}
+        textConfirm="categoría"
+        onConfirm={handleConfirmDelete}
+      />
     </div>
   );
 };
