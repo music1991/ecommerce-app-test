@@ -1,9 +1,10 @@
+import type { SaleActorType } from "../../api/types/sales.types";
 import type { Sale } from "../../features/sales/store/useSalesStore";
 
 export const MOCK_SALES: Sale[] = [
   {
     id: 1,
-    actorType: "cliente",
+    actorType: "customer" as SaleActorType,
     actorId: "client-001",
     actorName: "Juan Pérez",
     createdAt: "2026-02-16T10:15:00.000Z",
@@ -34,7 +35,7 @@ export const MOCK_SALES: Sale[] = [
 
   {
     id: 2,
-    actorType: "cliente",
+    actorType: "customer" as SaleActorType,
     actorId: "client-002",
     actorName: "María García",
     createdAt: "2026-02-15T18:30:00.000Z",
@@ -56,7 +57,7 @@ export const MOCK_SALES: Sale[] = [
 
   {
     id: 3,
-    actorType: "cliente",
+    actorType: "customer" as SaleActorType,
     actorId: "client-003",
     actorName: "Carlos López",
     createdAt: "2026-02-14T14:45:00.000Z",
@@ -64,9 +65,10 @@ export const MOCK_SALES: Sale[] = [
     assignedToEmployeeId: "emp-002",
     paidAt: "2026-02-14T15:10:00.000Z",
     completedBy: {
-      actorType: "empleado",
+      actorType: "employee" as SaleActorType,
       actorId: "emp-002",
       actorName: "Ana Rodríguez",
+      actorEmail: ""
     },
     items: [
       {

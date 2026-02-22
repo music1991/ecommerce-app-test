@@ -12,20 +12,23 @@ import {
   LayoutDashboard,
   LogOut,
   User,
-  AlertTriangle
+  AlertTriangle,
+  Menu,
+  X,
+  LogIn
 } from "lucide-react";
 import { Modal } from '../../modals/Modal';
 import { AuthRoles } from '../../../api/types/sales.types';
 import { MOCK_CATEGORIES_DB } from '../../mocks/catetory.mock';
 
-const DropdownItem = ({ to, label }: { to: string, label: string }) => (
+/* const DropdownItem = ({ to, label }: { to: string, label: string }) => (
   <Link
     to={to}
     className="block px-4 py-2 text-[10px] text-slate-400 hover:text-blue-500 hover:bg-white/5 transition-all"
   >
     {label}
   </Link>
-);
+); */
 
 export const Navbar = () => {
   const { t } = useLanguage();
@@ -33,10 +36,11 @@ export const Navbar = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const { user, logout } = useAuthStore();
 
-  const handleSearch = (e: React.FormEvent) => {
+  const handleSearch = (e: React.FormEvent) => { //AJUSTAR ESTO
     e.preventDefault();
     if (searchTerm.trim()) {
       navigate(`/search?q=${encodeURIComponent(searchTerm.trim())}`);
@@ -59,60 +63,34 @@ export const Navbar = () => {
     return unsub;
   }, []);
 
-  return (
+return (
     <>
       <nav className="fixed top-0 w-full z-50 bg-slate-950/80 backdrop-blur-md border-b border-white/5 h-20">
-        <div className="container mx-auto px-4 h-full flex items-center justify-between gap-8">
-          <div>
-            <Link to="/" className="font-black text-2xl text-white shrink-0 tracking-tighter hover:opacity-80 transition-opacity">
+        <div className="container mx-auto px-4 h-full flex items-center justify-between">
+          
+          {/* LOGO */}
+          <div className="flex flex-col">
+            <Link to="/" className="font-black text-xl md:text-2xl text-white tracking-tighter hover:opacity-80 transition-opacity">
               TECH<span className="text-blue-600">STORE</span>
             </Link>
             {user && (
-              <div className="flex justify-center">
-                <span className="text-[10px] text-white font-bold uppercase tracking-tight">Bienvenido</span>
-                <span className="text-[10px] text-white font-bold uppercase tracking-tight ml-1">{user.name}</span>
-              </div>
+              <span className="hidden md:block text-[10px] text-blue-400 font-bold uppercase">
+                {user.name}
+              </span>
             )}
           </div>
 
-
-{/*  <div className="hidden lg:flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-slate-400 h-full">
-            <div className="relative group h-full flex items-center px-4 cursor-pointer">
-              <div className="flex items-center gap-2 group-hover:text-white transition-colors">
-                <Laptop size={16} className="text-blue-500" />
-                <span>Laptops</span>
-           <ChevronDown size={12} className="group-hover:rotate-180 transition-transform" /> 
-              </div>
-            <div className="absolute top-[80px] left-0 w-48 bg-slate-950 border border-white/10 rounded-b-2xl py-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all shadow-2xl">
-                <DropdownItem to="/category/Laptops" label="Ver Todas" />
-                <DropdownItem to="/search?q=MacBook" label="MacBook" />
-                <DropdownItem to="/search?q=Gaming" label="Gaming Laptops" />
-              </div> 
-            </div>
-          </div> */}
-
-           <div className="hidden lg:flex items-center gap-1 text-[11px] font-bold uppercase tracking-widest text-slate-400 h-full">
-    
-    {Object.values(MOCK_CATEGORIES_DB).map((category) => (
-      <Link
-        key={category.id}
-        to={`/category/${category.name.toLowerCase()}`}
-        className=""
-      >
-
-
-          <div className="relative group h-full flex items-center px-4 cursor-pointer">
-              <div className="flex items-center gap-2 group-hover:text-white transition-colors">
-                <Laptop size={16} className="text-blue-500" />
-                <span>{category.name}</span>
+          {/* CATEGORÍAS (Escritorio) */}
+          <div className="hidden lg:flex items-center gap-1 text-[11px] font-bold uppercase tracking-widest text-slate-400 h-full">
+            {Object.values(MOCK_CATEGORIES_DB).map((category) => (
+              <Link key={category.id} to={`/category/${category.name.toLowerCase()}`}>
+                <div className="relative group h-full flex items-center px-4 cursor-pointer hover:text-white transition-colors">
+                   <span>{category.name}</span>
                 </div>
-                </div>
-      </Link>
-    ))}
-
-  </div>
-
-          <form onSubmit={handleSearch} className="flex-1 max-w-md relative group hidden md:block">
+              </Link>
+            ))}
+          </div>
+              <form onSubmit={handleSearch} className="flex-1 max-w-md relative group hidden md:block">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-blue-500 transition-colors" size={18} />
             <input
               type="text"
@@ -123,7 +101,9 @@ export const Navbar = () => {
             />
           </form>
 
-          <div className="flex items-center gap-4">
+          {/* ACCIONES DERECHA */}
+          <div className="flex items-center gap-2 md:gap-4">
+            {/* CARRITO (Siempre visible) */}
             <Link to="/cart" className="relative group">
               <div className="p-2.5 bg-white/5 rounded-xl border border-white/5 group-hover:border-blue-500/50 transition-all">
                 <ShoppingCart size={20} className="text-slate-300 group-hover:text-blue-500" />
@@ -135,37 +115,138 @@ export const Navbar = () => {
               )}
             </Link>
 
-            <div className="gap-2 ml-2 pl-4 border-l border-white/10">
-              <div className='flex flex-row'>
-                {(user?.role === AuthRoles.Admin || user?.role === AuthRoles.Employee) && (
+            {/* BOTÓN HAMBURGUESA (Solo móvil) */}
+            <button 
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="lg:hidden p-2.5 bg-white/5 rounded-xl border border-white/5 text-slate-300"
+            >
+              {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
+            </button>
+
+            {/* BOTONES AUTH (Solo Escritorio) */}
+            <div className="hidden lg:flex items-center gap-2 ml-2 pl-4 border-l border-white/10">
+
+{(user?.role === AuthRoles.Admin || user?.role === AuthRoles.Employee) && (
                   <Link
                     to="/admin"
                     className="flex items-center gap-2 px-4 py-2 bg-blue-600/10 border border-blue-500/20 rounded-xl text-[10px] font-black uppercase text-blue-400 hover:bg-blue-600 hover:text-white transition-all group"
                   >
                     <LayoutDashboard size={16} />
-                    <span className="hidden xl:inline">Dashboard</span>
+                    <span className="hidden xl:inline">Panel de Gestion</span>
                   </Link>
                 )}
                 {user ? (
-                  <button
-                    onClick={() => setIsModalOpen(true)}
-                    className="flex flex-col items-center justify-center p-2 bg-red-500/5 hover:bg-red-500/20 border border-red-500/10 hover:border-red-500/40 rounded-xl text-red-500 transition-all group min-w-[80px]"
-                    title="Cerrar Sesión"
-                  >
-                    <span className="text-[10px] text-white font-bold uppercase tracking-tight">Log Out</span>
-                    <LogOut size={20} className="group-hover:translate-x-0.5 transition-transform" />
+                  <button onClick={() => setIsModalOpen(true)} className="flex flex-col items-center p-2 bg-red-500/5 border border-red-500/10 rounded-xl text-red-500 min-w-[80px]">
+                    <span className="text-[10px] text-white font-bold uppercase">Cerrar Sesion</span>
+                    <LogOut size={18} />
                   </button>
                 ) : (
-                  <Link
-                    to="/login"
-                    className="flex flex-col items-center justify-center p-2 bg-blue-500/5 hover:bg-blue-500/20 border border-blue-500/10 hover:border-blue-500/40 rounded-xl text-blue-500 transition-all group min-w-[80px]"
-                  >
-                    <span className="text-[10px] text-white font-bold uppercase tracking-tight">Log In</span>
-                    <User size={20} className="group-hover:scale-110 transition-transform" />
+                  <Link to="/login" className="flex flex-col items-center p-2 bg-blue-500/5 border border-blue-500/10 rounded-xl text-blue-500 min-w-[80px]">
+                    <span className="text-[10px] text-white font-bold uppercase">Inciar Sesion</span>
+                    <User size={18} />
                   </Link>
                 )}
-              </div>
             </div>
+          </div>
+        </div>
+
+        {/* MENÚ MÓVIL DESPLEGABLE */}
+        {/* MENÚ MÓVIL OVERLAY (Moderno y Estético) */}
+        <div 
+     
+        className={`fixed inset-0 top-20 z-40 lg:hidden transition-all duration-500 ${isMenuOpen ? 'visible' : 'invisible'}`}>
+          {/* Background Blur Overlay */}
+          <div 
+          
+          className={`absolute inset-0 bg-slate-950/60 backdrop-blur-sm transition-opacity duration-500 ${isMenuOpen ? 'opacity-100' : 'opacity-0'}`} onClick={() => setIsMenuOpen(false)} />
+          
+          {/* Panel Lateral */}
+          <div className={`absolute right-0 top-0 h-full w-[80%] 
+                            max-w-sm bg-slate-900 border-l border-white/10 
+                            shadow-2xl transform transition-transform duration-500 ease-out ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+            
+            <div 
+           // style={{ border: "1px solid orange", background: "blue"}}
+            className="border border-b-white/40 border-l-white/40 p-10 rounded-bl-2xl bg-slate-950">
+            {(user?.role === AuthRoles.Admin || user?.role === AuthRoles.Employee) && (
+
+               <div className='mb-10'>
+                <h3 className="text-blue-500 text-xs font-black uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
+                  <span className="w-8 h-[1px] bg-blue-500/30"></span> 
+                  Administracion
+                </h3>
+                 <Link
+                    to="/admin"
+                    className="text-slate-100 font-semibold text-xl flex items-center justify-between group"
+                  >
+                    
+                    <span className="text-white">Panel de Gestion</span>
+                  </Link>
+               
+              </div>
+                 
+                )}     
+              {/* SECCIÓN CATEGORÍAS */}
+              <div >
+                <h3 className="text-blue-500 text-xs font-black uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
+                  <span className="w-8 h-[1px] bg-blue-500/30"></span> 
+                  Explorar Tienda
+                </h3>
+                <div className="flex flex-col gap-5">
+                  {Object.values(MOCK_CATEGORIES_DB).map((category) => (
+                    <Link 
+                      key={category.id} 
+                      to={`/category/${category.name.toLowerCase()}`}
+                      onClick={() => setIsMenuOpen(false)}
+                      className="text-slate-100 font-semibold text-xl flex items-center justify-between group"
+                    >
+                      {category.name}
+                      <ChevronDown size={18} className="text-slate-600 -rotate-90 group-hover:text-blue-500 transition-colors" />
+                    </Link>
+                  ))}
+                </div>
+              </div>
+
+              
+
+              {/* SECCIÓN SESIÓN (Mismo estilo que categorías) */}
+              <div 
+          
+              className="pt-10">
+                <h3 className="text-blue-500 text-xs font-black uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
+                  <span className="w-8 h-[1px] bg-blue-500/30"></span> 
+                  Mi Cuenta
+                </h3>
+                <div className="flex flex-col gap-5">
+                  {user ? (
+                    <>
+         
+                      <button 
+                        onClick={() => { setIsMenuOpen(false); setIsModalOpen(true); }}
+                        className="text-red-400 font-semibold text-xl flex items-center gap-3"
+                      >
+                        <LogOut size={22} /> Cerrar Sesión
+                      </button>
+                    </>
+                  ) : (
+                    <Link 
+                      to="/login" 
+                      onClick={() => setIsMenuOpen(false)}
+                      className="text-slate-100 font-semibold text-xl flex items-center justify-between group"
+                    >
+                      <div className="flex items-center gap-3">
+                        <LogIn size={22} className="text-indigo-400" />
+                        Iniciar Sesión
+                      </div>
+                      <ChevronDown size={18} className="text-slate-600 -rotate-90 group-hover:text-indigo-400 transition-colors" />
+                    </Link>
+                  )}
+                </div>
+              </div>
+
+            </div>
+
+
           </div>
         </div>
       </nav>
@@ -187,7 +268,6 @@ export const Navbar = () => {
             >
               Cancelar
             </button>
-
             <button
               onClick={handleLogoutConfirm}
               className="flex-1 px-4 py-3 !bg-sky-500 !text-white font-bold rounded-xl shadow-lg shadow-sky-200 hover:!bg-sky-600 transition-all active:scale-95 border border-sky-600"
@@ -195,9 +275,10 @@ export const Navbar = () => {
               Confirmar
             </button>
           </div>
-
         </div>
       </Modal>
     </>
   );
 };
+
+

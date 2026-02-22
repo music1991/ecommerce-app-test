@@ -14,6 +14,7 @@ import {
 
 import { useSalesStore, type Sale, type SaleItem } from "../../sales/store/useSalesStore";
 import { MOCK_PRODUCTS } from "../../products/services/products.mock"; 
+import type { SaleActorType } from "../../../api/types/sales.types";
 
 export const SalePendingDetail = () => {
   const navigate = useNavigate();
@@ -184,9 +185,10 @@ export const SalePendingDetail = () => {
           <button
             onClick={() => {
               completeSale(sale.id, {
-                actorType: "empleado",
+                actorType: "employee" as SaleActorType,
                 actorId: "emp-001",
                 actorName: "Empleado (Mock)",
+                actorEmail: ""
               })
             }}
             disabled={!canEdit}
