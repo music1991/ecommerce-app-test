@@ -161,14 +161,14 @@ export const CashManagement = () => {
         {activeBox ? (
           <button 
             onClick={() => setIsCloseModalOpen(true)}
-            className="flex items-center gap-2 px-6 py-3 bg-red-50 text-red-600 border-2 border-red-100 rounded-2xl font-black hover:bg-red-100 transition-all active:scale-95"
+            className="flex items-center gap-2 px-6 py-3 !bg-red-50 text-red-600 border-2 border-red-100 rounded-2xl font-black hover:bg-red-100 transition-all active:scale-95"
           >
             <Lock size={20} /> Finalizar Turno
           </button>
         ) : (
           <button 
             onClick={() => setIsOpenModalOpen(true)}
-            className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-2xl font-black hover:bg-slate-900 shadow-lg shadow-blue-600/20 transition-all active:scale-95"
+            className="flex items-center gap-2 px-6 py-3 !bg-blue-600 text-white rounded-2xl font-black hover:bg-slate-900 shadow-lg shadow-blue-600/20 transition-all active:scale-95"
           >
             <Unlock size={20} /> Abrir Nueva Caja
           </button>
