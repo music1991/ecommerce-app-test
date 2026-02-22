@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { MOCK_CUSTOMERS_AUTH_DB } from "../../../shared/mocks/customersAuth.mock";
 import { MOCK_STAFF_DB } from "../../../shared/mocks/staff.mock";
 import { ArrowRight } from "lucide-react"; // Importamos el icono
+//import { loginAndSelectFirstBranch } from "../../../api/staff.service";
 
 export const LoginPage = () => {
   const [email, setEmail] = useState("");
@@ -13,7 +14,7 @@ export const LoginPage = () => {
   const navigation = useNavigate();
   const login = useAuthStore((state) => state.login);
 
-  const handleSubmit = (e: React.FormEvent) => {
+ const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
@@ -60,10 +61,39 @@ export const LoginPage = () => {
     }
 
     setError("Credenciales inválidas. Intenta nuevamente.");
+  }; 
+
+  /*
+  const loginStore = useAuthStore((state) => state.login);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    //setLoading(true); // Bloqueamos el botón mientras pedimos al back
+
+    try {
+      const res = await loginAndSelectFirstBranch({ email, password });
+
+      if (res.success) {
+        loginStore(res.data.user)//, res.data.token, res.data.branches);
+
+        if (res.data.user.rol === "customer") {
+          navigation("/");
+        } else {
+          navigation("/dashboard");
+        }
+      } else {
+        setError(res.message || "Credenciales inválidas.");
+      }
+    } catch (err) {
+      setError("Error de conexión con el servidor.");
+    } finally {
+    //  setLoading(false);
+    }
   };
+  */
 
   const onGoRegister = () => navigation("/customerRegister");
-  const onSkipLogin = () => navigation("/"); // Función para entrar como invitado
+  const onSkipLogin = () => navigation("/"); 
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#05070a] p-4 relative overflow-hidden">

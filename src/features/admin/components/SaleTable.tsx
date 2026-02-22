@@ -1,4 +1,5 @@
-import { Eye, FilePenLine, Trash2 } from "lucide-react";
+import { Eye, FilePenLine, Trash2, Printer } from "lucide-react"; // Añadimos Printer
+import { useNavigate } from "react-router-dom"; // Importamos navigate
 import type { Sale } from "../../sales/store/useSalesStore";
 
 interface Props {
@@ -8,6 +9,8 @@ interface Props {
 }
 
 export const SaleTable = ({ sales, onView, onDelete }: Props) => {
+  const navigate = useNavigate(); // Hook para la redirección directa
+
   const money = (n: number) =>
     new Intl.NumberFormat("es-AR", {
       style: "currency",
@@ -28,8 +31,6 @@ export const SaleTable = ({ sales, onView, onDelete }: Props) => {
       </span>
     );
   };
-  
-  console.log(sales)
 
   return (
     <div className="overflow-x-auto">
@@ -45,40 +46,57 @@ export const SaleTable = ({ sales, onView, onDelete }: Props) => {
         </thead>
         <tbody className="divide-y divide-slate-100">
           {sales.length === 0 ? (
-            <tr><td colSpan={5} className="p-10 text-center text-slate-500">No hay ventas pendientes.</td></tr>
+            <tr><td colSpan={5} className="p-10 text-center text-slate-500">No hay ventas registradas.</td></tr>
           ) : (
-            sales.map((s) => (
-              <tr key={s.id} className="hover:bg-slate-50/50 transition-colors group">
-                <td className="p-6">
-                  <div className="flex flex-col">
-                    <span className="font-black text-slate-900">#{s.id}</span>
-                    <span className="text-xs text-slate-500">{new Date(s.createdAt).toLocaleString()}</span>
-                  </div>
-                </td>
-                <td className="p-6">
-                  <div className="flex flex-col">
-                    <span className="font-bold text-slate-900">{s.actorName || "Consumidor Final"}</span>
-                    <span className="text-xs text-blue-600 font-medium">
-                        {/* Mostramos email si existe, sino el ID */}
-                        {s.actorEmail || s.actorId}
-                    </span>
-                  </div>
-                </td>
-                <td className="p-6 text-center"><StatusPill status={s.status} /></td>
-                <td className="p-6 text-right font-black text-slate-900">{money(s.total)}</td>
-                <td className="p-6 text-right">
-                  <div className="flex justify-end gap-2">
-                    <button onClick={() => onView(s.id.toString())} className="flex items-center gap-2 bg-slate-900 text-blue-400 px-4 py-2 rounded-lg font-bold text-xs hover:bg-slate-800 transition-all">
-                      <FilePenLine size={14} /> Gestionar
-                    </button>
+            sales.map((s) => {
+              const isCompleted = s.status === "completada";
 
-                    <button onClick={() => onDelete(s)} className="p-2 text-rose-600 hover:bg-rose-50 rounded-lg transition-colors">
-                                <Trash2 size={18} />
-                              </button>
-                  </div>
-                </td>
-              </tr>
-            ))
+              return (
+                <tr key={s.id} className="hover:bg-slate-50/50 transition-colors group">
+                  <td className="p-6">
+                    <div className="flex flex-col">
+                      <span className="font-black text-slate-900">#{s.id}</span>
+                      <span className="text-xs text-slate-500">{new Date(s.createdAt).toLocaleString()}</span>
+                    </div>
+                  </td>
+                  <td className="p-6">
+                    <div className="flex flex-col">
+                      <span className="font-bold text-slate-900">{s.actorName || "Consumidor Final"}</span>
+                      <span className="text-xs text-blue-600 font-medium">
+                        {s.actorEmail || s.actorId}
+                      </span>
+                    </div>
+                  </td>
+                  <td className="p-6 text-center"><StatusPill status={s.status} /></td>
+                  <td className="p-6 text-right font-black text-slate-900">{money(s.total)}</td>
+                  <td className="p-6 text-right">
+                    <div className="flex justify-end gap-2">
+                      
+                      {/* BOTÓN DINÁMICO */}
+                      {isCompleted ? (
+                        <button 
+                          onClick={() => navigate(`/admin/sales/bill/${s.id}`)} 
+                          className="flex items-center gap-2 !bg-emerald-600 text-white px-4 py-2 rounded-lg font-bold text-xs hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-600/10"
+                        >
+                          <Printer size={14} /> Factura
+                        </button>
+                      ) : (
+                        <button 
+                          onClick={() => onView(s.id.toString())} 
+                          className="flex items-center gap-2 bg-slate-900 text-blue-400 px-4 py-2 rounded-lg font-bold text-xs hover:bg-slate-800 transition-all"
+                        >
+                          <FilePenLine size={14} /> Gestionar
+                        </button>
+                      )}
+
+                      <button onClick={() => onDelete(s)} className="p-2 text-rose-600 hover:!bg-rose-50 rounded-lg transition-colors">
+                        <Trash2 size={18} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })
           )}
         </tbody>
       </table>

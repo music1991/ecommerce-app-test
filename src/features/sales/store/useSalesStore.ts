@@ -36,6 +36,7 @@ export interface Sale {
   total: number;
   paidAt?: string;
   completedBy?: CompletedBySnapshot;
+  cash_register_id: number | null,
 }
 
 interface ActiveSaleData {
@@ -46,11 +47,13 @@ interface ActiveSaleData {
   assignedToEmployeeEmail?: string | null;
   items: SaleItem[];
   total: number;
+  cash_register_id: number | null,
 }
 
 interface SalesState {
   lastId: number;
   sales: Sale[];
+   setSaleCashRegister: (saleId: number, cashRegisterId: number) => void;
   getActiveSaleByActor: (actorType: SaleActorType, actorId: string) => Sale | undefined;
   createOrUpdateActiveSale: (actorType: SaleActorType, actorId: string, data: ActiveSaleData) => Sale;
   createSale: (data: Omit<Sale, "id">) => Sale;
@@ -90,7 +93,7 @@ function resolveStaff(actorIdOrEmail: string) {
 function resolveActorSnapshot(actorType: SaleActorType, actorId: string) {
   if (actorType === "customer") {
     const c: any = resolveCustomer(actorId);
-    if (!c) return { actorName: "Cliente Online", actorEmail: actorId }; 
+    if (!c) return { actorName: "Cliente Online", actorEmail: actorId };
     return { actorName: c.name || c.displayName, actorEmail: c.email };
   }
   const u: any = resolveStaff(actorId);
@@ -112,7 +115,9 @@ export const useSalesStore = create<SalesState>()(
     (set, get) => ({
       lastId: 200, // Iniciamos en 200 para no chocar con IDs bajos
       sales: [],
-
+   setSaleCashRegister: (saleId, cashRegisterId) => {
+        get().updateSale(saleId, { cash_register_id: cashRegisterId });
+      },
       getActiveSaleByActor: (actorType, actorId) =>
         get().sales.find(
           (s) =>
@@ -132,6 +137,8 @@ export const useSalesStore = create<SalesState>()(
             actorEmail: data.actorEmail || snap.actorEmail || active.actorEmail,
             items: data.items,
             total: data.total,
+            // Mantenemos la caja original o actualizamos si viene una nueva
+            cash_register_id: data.cash_register_id ?? active.cash_register_id,
           };
           set((state) => ({
             sales: state.sales.map((x) => (x.id === active.id ? next : x)),
@@ -151,6 +158,8 @@ export const useSalesStore = create<SalesState>()(
           items: data.items,
           total: data.total,
           assignedToEmployeeId: data.assignedToEmployeeId ?? null,
+          // Vinculamos la venta a la caja proporcionada
+          cash_register_id: data.cash_register_id || null,
         };
 
         set((state) => ({ lastId: nextId, sales: [newSale, ...state.sales] }));
@@ -190,20 +199,35 @@ export const useSalesStore = create<SalesState>()(
         get().updateSale(saleId, { status: "finalizar_en_local" });
       },
 
-      completeSale: (saleId, completedBy) => {
-        const sale = get().getSaleById(saleId);
-        if (!sale) return;
+completeSale: (saleId, completedBy) => {
+  const sale = get().getSaleById(saleId);
+  if (!sale) return;
 
-        const cbSnap = completedBy 
-          ? { ...completedBy, ...resolveActorSnapshot(completedBy.actorType, completedBy.actorId) }
-          : undefined;
+  // 1. Resolvemos quién completa la venta (Snapshot para el historial)
+  const cbSnap = completedBy
+    ? { ...completedBy, ...resolveActorSnapshot(completedBy.actorType, completedBy.actorId) }
+    : undefined;
 
-        get().updateSale(saleId, {
-          status: "completada",
-          paidAt: new Date().toISOString(),
-          completedBy: cbSnap || sale.completedBy,
-        });
-      },
+  // 2. CALCULAMOS EL TOTAL REAL (Sumatoria de items)
+  // Esto asegura que el monto no sea 0 si hay productos cargados
+  const calculatedTotal = sale.items.reduce(
+    (acc, item) => acc + (Number(item.price) || 0) * (Number(item.quantity) || 0), 
+    0
+  );
+
+  // 3. Actualizamos la venta con el estado final y el monto real
+  get().updateSale(saleId, {
+    status: "completada",
+    paidAt: new Date().toISOString(),
+    completedBy: cbSnap || sale.completedBy,
+    
+    // IMPORTANTE: Seteamos el total aquí para que impacte en la caja
+    total: calculatedTotal, 
+    
+    // Sincronizamos el nombre del actor para que aparezca "JUAN" en la lista
+    actorName: cbSnap?.actorName || sale.actorName 
+  });
+},
 
       assignSale: (saleId, employeeId) => {
         const emp = resolveEmployeeSnapshot(employeeId);

@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   ArrowLeft,
@@ -13,8 +13,9 @@ import {
 } from "lucide-react";
 
 import { useSalesStore, type Sale, type SaleItem } from "../../sales/store/useSalesStore";
-import { MOCK_PRODUCTS } from "../../products/services/products.mock"; 
+import { MOCK_PRODUCTS } from "../../products/services/products.mock";
 import type { SaleActorType } from "../../../api/types/sales.types";
+import { getActiveCashRegister } from "../../../api/cash.service";
 
 export const SalePendingDetail = () => {
   const navigate = useNavigate();
@@ -30,6 +31,33 @@ export const SalePendingDetail = () => {
 
   const [productSearch, setProductSearch] = useState("");
   const [assignEmployeeId, setAssignEmployeeId] = useState("");
+
+  const setSaleCashRegister = useSalesStore((s) => s.setSaleCashRegister);
+
+  // --- AUTO-ASOCIACIÓN DE CAJA AL CARGAR ---
+  useEffect(() => {
+    const linkRegister = async () => {
+     console.log("llega 1")
+      if (sale && !sale.cash_register_id && sale.status !== "completada") {
+        const res = await getActiveCashRegister();
+    console.log("llega 2", res)
+        if (res.success && res.data) {
+          console.log(`Asociando venta #${sale.id} a la caja #${res.data.id}`);
+          // Usamos la nueva función del store que creamos antes
+          setSaleCashRegister(sale.id, res.data.id);
+        }
+      }
+    };
+
+    linkRegister();
+  }, [saleId, sale?.cash_register_id]);
+
+
+  useEffect(() => {
+    console.log(sale)
+  }, [sale])
+
+
 
   const money = (n: number) =>
     new Intl.NumberFormat("es-AR", {
@@ -54,12 +82,12 @@ export const SalePendingDetail = () => {
       );
     }
     if (status === "derivado") {
-  return (
-    <span className="inline-flex px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-indigo-100 text-indigo-800">
-      Derivado
-    </span>
-  );
-}
+      return (
+        <span className="inline-flex px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-indigo-100 text-indigo-800">
+          Derivado
+        </span>
+      );
+    }
     return (
       <span className="inline-flex px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-700">
         Completada
@@ -86,15 +114,15 @@ export const SalePendingDetail = () => {
     const nextItems = existing
       ? sale.items.map((x) => (x.id === p.id ? { ...x, quantity: x.quantity + 1 } : x))
       : [
-          ...sale.items,
-          {
-            id: p.id,
-            name: p.name,
-            price: p.price,
-            quantity: 1,
-            images: p.images,
-          },
-        ];
+        ...sale.items,
+        {
+          id: p.id,
+          name: p.name,
+          price: p.price,
+          quantity: 1,
+          images: p.images,
+        },
+      ];
 
     setItems(nextItems);
   };
@@ -174,7 +202,7 @@ export const SalePendingDetail = () => {
         </div>
 
         <div className="flex flex-wrap gap-2 justify-end">
-{/*           <button
+          {/*           <button
             onClick={() => markFinalizeInLocal(sale.id)}
             disabled={!canEdit}
             className="flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-xs border border-amber-200 bg-amber-50 text-amber-900 hover:bg-amber-100 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -183,20 +211,22 @@ export const SalePendingDetail = () => {
           </button> */}
 
           <button
-            onClick={() => {
-              completeSale(sale.id, {
+            onClick={async () => {
+              await completeSale(sale.id, {
                 actorType: "employee" as SaleActorType,
                 actorId: "emp-001",
                 actorName: "Empleado (Mock)",
                 actorEmail: ""
-              })
+              });
+
+              navigate(`/admin/sales/bill/${sale.id}`);
             }}
             disabled={!canEdit}
             className="flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-xs bg-emerald-600 text-green-500 hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
           >
             <CreditCard size={16} /> Completar
           </button>
-          
+
         </div>
       </div>
 
@@ -322,12 +352,8 @@ export const SalePendingDetail = () => {
 
             <div className="p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredCatalog.slice(0, 12).map((p: any) => (
-                <button
-                  key={p.id}
-                  type="button"
-                  onClick={() => addProduct(p)}
-                  disabled={!canEdit}
-                  className="text-left group rounded-2xl border border-slate-200 hover:border-slate-300 hover:bg-slate-50 transition-all p-4 disabled:opacity-50 disabled:cursor-not-allowed"
+                <div
+                  key={p.id} className="text-left group rounded-2xl border border-slate-200 p-4 "
                 >
                   <div className="flex items-center gap-4">
                     <img
@@ -341,10 +367,13 @@ export const SalePendingDetail = () => {
                       <p className="text-sm font-black text-blue-600 mt-1">{money(p.price)}</p>
                     </div>
                   </div>
-                  <div className="mt-3 text-xs font-bold text-slate-500">
-                    Click para agregar
-                  </div>
-                </button>
+                  <button
+                    disabled={!canEdit}
+                    onClick={() => addProduct(p)}
+                    className="mt-3 text-xs text-white !bg-blue-500 px-5 py-1 rounded-2xl flex justify-center disabled:opacity-50 disabled:cursor-not-allowed">
+                    Agregar
+                  </button>
+                </div>
               ))}
             </div>
           </div>
@@ -423,14 +452,14 @@ export const SalePendingDetail = () => {
                 disabled={!canEdit}
               />
 
-<button
-  type="button"
-  onClick={() => deriveSale(sale.id, assignEmployeeId.trim() || "emp-001")}
-  disabled={!canEdit}
-  className="w-full bg-slate-900 hover:bg-black text-yellow-500 font-black py-4 rounded-2xl transition-all disabled:opacity-50"
->
-  Asignar / Derivar
-</button>
+              <button
+                type="button"
+                onClick={() => deriveSale(sale.id, assignEmployeeId.trim() || "emp-001")}
+                disabled={!canEdit}
+                className="w-full bg-slate-900 hover:bg-black text-yellow-500 font-black py-4 rounded-2xl transition-all disabled:opacity-50"
+              >
+                Asignar / Derivar
+              </button>
 
               <p className="text-xs text-slate-500">
                 Cuando está en “finalizar en local”, un empleado puede tomarla, derivarla o completarla.

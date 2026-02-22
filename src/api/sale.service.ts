@@ -122,53 +122,65 @@ export async function listSales(): Promise<any[]> {
 // ========================================
 // REAL IMPLEMENTATION (FUTURO - GATEWAY / AXIOS)
 // ========================================
-
 /*
-import { http } from "./http";
+import axios from "axios";
 
-export async function startSale(payload: CreateSalePayload): Promise<CreateSaleResponse> {
-  const response = await http.post("/admin/sales/start", payload, {
-    headers: { "X-Tenant": TENANT_ID }
+export const http = axios.create({
+  baseURL: "https://api.techstore.com", // La URL de tu backender
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
+// 1) INICIAR VENTA (POST)
+export async function startSale(payload: any): Promise<any> {
+  // El back espera IDs de productos y cantidades. El total lo calcula él.
+  const backendBody = {
+    tenant_id: payload.tenant_id,
+    branch_id: payload.branch_id,
+    cliente_id: payload.actorId !== "anon" ? payload.actorId : null,
+    items: payload.items.map((it: any) => ({
+      producto_id: it.id,
+      cantidad: it.quantity,
+      precio_unitario: it.price // Opcional si el back usa el precio actual
+    })),
+    metodo_pago: payload.paymentMethod || "efectivo",
+    estado: "pendiente" 
+  };
+
+  const response = await http.post("/api/sales", backendBody);
+  return response.data;
+}
+
+// 2) COMPLETAR VENTA (POST/PUT)
+export async function completeSale(saleId: number, paymentData: any): Promise<any> {
+  // El back registra el pago y descuenta stock definitivamente
+  const response = await http.post(`/api/sales/${saleId}/complete`, {
+    metodo_pago: paymentData.metodo_pago,
+    monto_recibido: paymentData.monto_recibido
   });
   return response.data;
 }
 
-export async function completeSale(saleId: number, patch: any): Promise<CreateSaleResponse> {
-  const response = await http.post(`/admin/sales/${saleId}/complete`, patch, {
-    headers: { "X-Tenant": TENANT_ID }
+// 3) DERIVAR VENTA (PATCH)
+export async function forwardSale(saleId: number, employeeId: number): Promise<any> {
+  // Asigna la venta a otro empleado (ej: del vendedor al cajero)
+  const response = await http.patch(`/api/sales/${saleId}/forward`, {
+    empleado_id: employeeId
   });
   return response.data;
 }
 
-export async function forwardSale(saleId: number, employeeId: string): Promise<CreateSaleResponse> {
-  const response = await http.post(`/admin/sales/${saleId}/forward`, { employeeId }, {
-    headers: { "X-Tenant": TENANT_ID }
-  });
-  return response.data;
-}
-
-export async function listSales(): Promise<Sale[]> {
-  const response = await http.get("/admin/sales", {
-    headers: { "X-Tenant": TENANT_ID }
-  });
-  return response.data;
-}
-*/
-
-// ========================================
-// FETCH VERSION (SIN AXIOS)
-// ========================================
-
-/*
-export async function listSales(): Promise<Sale[]> {
-  const res = await fetch("https://api.techstore.com", {
-    method: "GET",
-    headers: {
-      "X-Tenant": TENANT_ID,
-      "Content-Type": "application/json"
+// 4) LISTAR VENTAS (GET)
+export async function listSales(filters: any): Promise<any> {
+  const response = await http.get("/api/sales", {
+    params: {
+      tenant_id: filters.tenant_id,
+      branch_id: filters.branch_id,
+      estado: filters.status, // pendiente, completada, cancelada
+      fecha: filters.date
     }
   });
-  if (!res.ok) throw new Error("Error obteniendo ventas");
-  return await res.json();
+  return response.data; // Paginado: res.data.data
 }
 */

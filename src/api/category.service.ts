@@ -84,51 +84,55 @@ export async function deleteCategory(id: string): Promise<{ success: boolean; me
 // ========================================
 // REAL IMPLEMENTATION (FUTURO - GATEWAY / AXIOS)
 // ========================================
-
 /*
-import { http } from "./http"; // tu instancia de axios configurada
+import axios from "axios";
 
-export async function getCategories(): Promise<Category[]> {
-  const response = await http.get("/admin/categories", {
-    headers: { "X-Tenant": "techstore" }
+export const http = axios.create({
+  baseURL: "https://api.techstore.com", // La URL de tu backender
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
+// GET: Lista categorías (con filtro opcional de activas)
+export async function getCategories(tenantId: number, onlyActive: boolean = true): Promise<any> {
+  const response = await http.get("/api/categories", {
+    params: { 
+      tenant_id: tenantId, 
+      activas: onlyActive ? 1 : 0 
+    }
   });
+  // El back incluye products_count en cada categoría
+  return response.data; 
+}
+
+// POST: Crear categoría
+export async function createCategory(payload: any): Promise<any> {
+  const backendBody = {
+    tenant_id: payload.tenant_id,
+    nombre_categoria: payload.name, // 🔄 Cambio: name -> nombre_categoria
+    descripcion: payload.description
+  };
+
+  const response = await http.post("/api/categories", backendBody);
   return response.data;
 }
 
-export async function createCategory(payload: CreateCategoryPayload): Promise<CategoryResponse> {
-  const response = await http.post("/admin/categories", payload, {
-    headers: { "X-Tenant": "techstore" }
-  });
+// PUT: Actualizar categoría
+export async function updateCategory(id: number | string, payload: any): Promise<any> {
+  const backendBody = {
+    nombre_categoria: payload.name,
+    descripcion: payload.description,
+    estado: payload.status === "active" // 🔄 Cambio: "active" -> true (boolean)
+  };
+
+  const response = await http.put(`/api/categories/${id}`, backendBody);
   return response.data;
 }
 
-export async function updateCategory(id: string, payload: UpdateCategoryPayload): Promise<CategoryResponse> {
-  const response = await http.put(`/admin/categories/${id}`, payload);
+// DELETE: Desactivar (estado = false)
+export async function deleteCategory(id: number | string): Promise<any> {
+  const response = await http.delete(`/api/categories/${id}`);
   return response.data;
-}
-
-export async function deleteCategory(id: string): Promise<{ success: boolean; message: string }> {
-  const response = await http.delete(`/admin/categories/${id}`);
-  return response.data;
-}
-*/
-
-// ========================================
-// FETCH VERSION (SIN DEPENDENCIAS)
-// ========================================
-
-/*
-export async function createCategory(payload: CreateCategoryPayload): Promise<CategoryResponse> {
-  const res = await fetch("https://api.techstore.com", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "X-Tenant": "techstore",
-    },
-    body: JSON.stringify(payload),
-  });
-
-  if (!res.ok) throw new Error("Error al procesar la categoría");
-  return await res.json();
 }
 */

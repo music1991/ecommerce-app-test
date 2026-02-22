@@ -4,11 +4,11 @@ import type { CreateEmployeePayload, StaffResponse, UpdateStaffPayload } from ".
 const sleep = (ms = 250) => new Promise((r) => setTimeout(r, ms));
 const normalizeEmail = (email: string) => email.toLowerCase().trim();
 
-export async function listEmployees(): Promise<StaffUser[]> {
+ export async function listEmployees(): Promise<StaffUser[]> {
   await sleep();
   return Object.values(MOCK_STAFF_DB).filter((u) => u.role === "employee");
 }
-
+ 
 export async function createEmployee(
   payload: CreateEmployeePayload
 ): Promise<StaffResponse<StaffUser>> {
@@ -34,8 +34,8 @@ export async function createEmployee(
     address: payload.address?.trim() || undefined,
     dni: payload.dni?.trim() || undefined,
 
-    position: payload.position,
-    startDate: payload.startDate,
+    position: payload.position, //no esta en el back
+    startDate: payload.startDate, //no esta en el back
   };
 
   MOCK_STAFF_DB[emailKey] = newUser;
@@ -110,33 +110,147 @@ export async function deleteStaffUser(id: string): Promise<StaffResponse<null>> 
 // ========================================
 // REAL IMPLEMENTATION (FUTURO - GATEWAY)
 // ========================================
-
-// import { http } from "./http"; // axios instance
-
 /*
-export async function listEmployees(): Promise<StaffResponse<StaffUser[]>> {
-  const response = await http.get("/staff/employees", {
+import axios from "axios";
+
+export const http = axios.create({
+  baseURL: "https://api.techstore.com", // La URL de tu backender
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+*/
+// EN EL FRONT AUN NO HABILITE ESTO - solo por db
+/* export async function createAdmin(payload: CreateEmployeePayload): Promise<StaffResponse<StaffUser>> {
+  // Adaptamos el objeto a lo que pide el back
+  const body = {
+    name: payload.name,
+    email: payload.email,
+    password: payload.password,
+    rol: "employed",        // Cambiado de "employee" a "employed"
+    tenant_id: 1,           // El back lo pide como int en el body
+    phone: payload.phone,
+    dni: payload.dni,
+    // position y startDate NO están en la doc del back, 
+    // podrías mandarlos pero quizás el back los ignore.
+  };
+
+  const response = await http.post("/api/register", body, {
     headers: {
-      "X-Tenant": "techstore",
       "Content-Type": "application/json",
-      // "Authorization": `Bearer ${token}`,
+      // Si el back usa tenant_id en el body, quizás el X-Tenant ya no sea necesario aquí
     },
   });
 
   return response.data;
+} */
+/*
+export async function createEmployee(payload: any): Promise<any> {
+
+  const [nombre, ...apellidoParts] = payload.name.trim().split(" ");
+  const apellido = apellidoParts.join(" ") || "Sin Apellido";
+
+  const backendBody = {
+    tenant_id: payload.tenant_id, // Obligatorio CHECKEAR ESTO
+    branch_id: payload.branch_id, // Obligatorio CHECKEAR ESTO
+    email: payload.email,
+    password: payload.password,
+    nombre: nombre,
+    apellido: apellido,
+    dni: payload.dni,
+    telefono: payload.phone,
+    puesto: payload.position,
+    direccion: payload.address,
+    estado: payload.status || "activo"
+  };
+
+  const response = await http.post("/api/employees", backendBody);
+  return response.data;
+} */
+/*
+  export interface LoginPayload {
+  email: string;  
+  password: string;  
 }
 
-export async function createEmployee(payload: CreateEmployeePayload): Promise<StaffResponse<StaffUser>> {
-  const response = await http.post("/staff/employees", payload, {
-    headers: {
-      "X-Tenant": "techstore",
-      "Content-Type": "application/json",
-      // "Authorization": `Bearer ${token}`,
-    },
+export async function selectBranch(branchId: number): Promise<StaffResponse<any>> {
+  const response = await http.post("/api/select-branch", {
+    branch_id: branchId
   });
+  return response.data;
+}
+
+export async function login(payload: any): Promise<any> {
+  const response = await http.post("/api/login", payload);
+  return response.data;
+}
+
+  export async function loginAndSelectFirstBranch(credentials: LoginPayload) {
+  // 1. Primer paso: Login
+  const loginRes = await login(credentials);
+  
+  if (loginRes.success && loginRes.data.branches.length > 0) {
+    const firstBranchId = loginRes.data.branches[0].id;
+    
+    // 2. Segundo paso: Selección automática
+    await selectBranch(firstBranchId);
+    
+    // Guardamos la sucursal activa para saber dónde estamos parados
+    localStorage.setItem("active_branch", firstBranchId.toString());
+  }
+  
+  return loginRes;
+}
+*/
+/*
+export async function listEmployees(filters: { tenant_id?: number; branch_id?: number; search?: string }): Promise<any> {
+  const response = await http.get("/api/employees", {
+    params: {
+      tenant_id: filters.tenant_id,
+      branch_id: filters.branch_id,
+      search: filters.search,
+      per_page: 50 // Por ejemplo
+    }
+  });
+  return response.data; // Nota: Esto devuelve un objeto de paginación de Laravel/similar
+}
+*/
+/*
+//ESTO NO LO ESTABA USANDO
+export async function getEmployeeById(id: number | string): Promise<any> {
+  // El backend usa la ruta /api/employees/{id}
+  const response = await http.get(`/api/employees/${id}`);
+  
+  // La respuesta viene con datos enriquecidos (sucursal, empresa, etc.)
+  return response.data; 
+}
+*/
+/*
+
+export async function updateStaffUser(id: number | string, patch: UpdateStaffPayload): Promise<any> {
+  // 1. Mapeamos los campos del Front al lenguaje del Back (Español + snake_case)
+  const backendPatch = {
+    nombre: patch.name,
+    email: patch.email,
+    password: patch.password, // Solo si se envía para cambiarla
+    estado: patch.status,     // 'activo' / 'suspendido' / 'inactivo'
+    telefono: patch.phone,
+    dni: patch.dni,
+    puesto: patch.position,
+    direccion: patch.address,
+    // tenant_id y branch_id suelen ser fijos, pero el back los podría pedir
+  };
+
+  const response = await http.put(`/api/employees/${id}`, backendPatch);
 
   return response.data;
 }
+*/
+
+// FALTA editar y eliminar
+/*
+
+
 
 export async function updateStaffUser(id: string, patch: UpdateStaffPayload): Promise<StaffResponse<StaffUser>> {
   const response = await http.put(`/staff/users/${id}`, patch, {
@@ -162,6 +276,8 @@ export async function deleteStaffUser(id: string): Promise<StaffResponse<null>> 
   return response.data;
 }
 */
+
+
 
 
 // ========================================
@@ -200,20 +316,6 @@ export async function createEmployee(payload: CreateEmployeePayload): Promise<St
   return await res.json();
 }
 
-export async function updateStaffUser(id: string, patch: UpdateStaffPayload): Promise<StaffResponse<StaffUser>> {
-  const res = await fetch(`${API_BASE}/staff/users/${id}`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      "X-Tenant": "techstore",
-      // "Authorization": `Bearer ${token}`,
-    },
-    body: JSON.stringify(patch),
-  });
-
-  if (!res.ok) throw new Error("Error actualizando empleado");
-  return await res.json();
-}
 
 export async function deleteStaffUser(id: string): Promise<StaffResponse<null>> {
   const res = await fetch(`${API_BASE}/staff/users/${id}`, {
@@ -229,3 +331,4 @@ export async function deleteStaffUser(id: string): Promise<StaffResponse<null>> 
   return await res.json();
 }
 */
+

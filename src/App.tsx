@@ -17,6 +17,8 @@ import { Sales } from './features/admin/pages/Sales';
 
 import { CategoriesManagement } from './features/admin/pages/CategoriesManagement';
 import { Categories } from './features/products/pages/Categories';
+import { CashManagement } from './features/admin/pages/CashManagement';
+import { BillPage } from './features/admin/pages/BillPage';
 
 function App() {
   const { isAuthenticated, user } = useAuthStore();
@@ -31,20 +33,20 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route 
-          path="/login" 
-          element={!isAuthenticated ? <LoginPage /> : <Navigate to={getRedirectPath()} replace />} 
+        <Route
+          path="/login"
+          element={!isAuthenticated ? <LoginPage /> : <Navigate to={getRedirectPath()} replace />}
         />
-        
+
         <Route path="/customerRegister" element={<RegisterCustomerPage />} />
 
         <Route element={<MainLayout />}>
           <Route path="/" element={<Home />} />
           <Route path="/product/:id" element={<ProductDetail />} />
-          
-          <Route 
-            path="/category/:categoryName" 
-            element={<Categories />} 
+
+          <Route
+            path="/category/:categoryName"
+            element={<Categories />}
           />
           <Route path="/cart" element={<Cart />} />
         </Route>
@@ -57,14 +59,16 @@ function App() {
             <Route path="/admin/sales/list" element={<Sales />} />
             <Route path="/admin/sales/detail/:id" element={<SalePendingDetail />} />
             <Route path="/admin/categories" element={<CategoriesManagement />} />
+            <Route path="/admin/cash" element={<CashManagement />} />
+            <Route path="/admin/sales/bill/:id" element={<BillPage />} />
           </Route>
         </Route>
 
-            <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
-               <Route element={<AdminLayout />}>
-       <Route path="/admin/employes" element={<EmployeeManagement />} />
-       </Route>
-    </Route>
+        <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
+          <Route element={<AdminLayout />}>
+            <Route path="/admin/employes" element={<EmployeeManagement />} />
+          </Route>
+        </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

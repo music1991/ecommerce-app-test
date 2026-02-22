@@ -139,120 +139,134 @@ export async function deactivateProduct(id: string): Promise<ApiResponse<null>> 
 // ========================================
 
 /*
-import { http } from "./http"; // instancia de axios configurada
+import axios from "axios";
 
-const TENANT_ID = "techstore";
+export const http = axios.create({
+  baseURL: "https://api.techstore.com", // La URL de tu backender
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
 
-export async function listProducts(query?: ProductsQuery): Promise<ApiResponse<ProductWithDetails[]>> {
-  const response = await http.get("/admin/products", {
-    params: query,
-    headers: {
-      "X-Tenant": TENANT_ID,
-      "Content-Type": "application/json",
-      // "Authorization": `Bearer ${token}`, // cuando exista auth real
-    },
+// GET: Lista paginada con filtros avanzados
+export async function listProducts(query?: any): Promise<any> {
+  const response = await http.get("/api/products", {
+    params: {
+      tenant_id: query?.tenant_id,
+      branch_id: query?.branch_id,
+      category_id: query?.category !== "all" ? query?.category : null,
+      search: query?.search,
+      marca: query?.marca,
+      low_stock: query?.low_stock ? 1 : 0,
+      per_page: query?.per_page || 20
+    }
+  });
+  // El back devuelve { data: { data: [productos], current_page... } }
+  return response.data;
+}
+
+
+
+// POST: Crear producto (Genera movimiento de stock inicial 'in')
+export async function createProduct(payload: any): Promise<any> {
+  const backendBody = {
+    tenant_id: payload.tenant_id,
+    branch_id: payload.branch_id || null,
+    category_id: payload.category_id,
+    name: payload.name,
+    description: payload.description,
+    specifications: payload.specs, // Mandar el array de {nombre, valor}
+    price: payload.price,
+    iva: payload.iva || 21,
+    stock: payload.stock,
+    min_stock: payload.min_stock,
+    barcode: payload.barcode,
+    peso_dimensiones: payload.dimensions,
+    marca: payload.marca
+  };
+
+  const response = await http.post("/api/products", backendBody);
+  return response.data;
+}
+
+// GET: Detalle con imágenes y movimientos de stock
+export async function getProductById(id: number | string): Promise<any> {
+  const response = await http.get(`/api/products/${id}`);
+  return response.data;
+}
+
+// PUT: Actualización (Genera movimiento 'adjustment' si cambia stock)
+export async function updateProduct(id: number | string, patch: any): Promise<any> {
+  const response = await http.put(`/api/products/${id}`, {
+    ...patch,
+    stock_reason: patch.reason || "Actualización desde panel"
   });
   return response.data;
 }
 
-export async function createProduct(payload: CreateProductPayload): Promise<ApiResponse<ProductWithDetails>> {
-  const response = await http.post("/admin/products", payload, {
-    headers: {
-      "X-Tenant": TENANT_ID,
-      "Content-Type": "application/json",
-    },
+// DELETE: Soft-delete (active = false)
+export async function deactivateProduct(id: number | string): Promise<any> {
+  const response = await http.delete(`/api/products/${id}`);
+  return response.data;
+}
+  */
+
+/* // IMÁGENES: Gestión individual
+export async function addProductImage(productId: number, imageUrl: string, position: number = 0) {
+  return (await http.post(`/api/products/${productId}/images`, { 
+    url_imagen: imageUrl, 
+    posicion: position 
+  })).data;
+}
+
+export async function deleteProductImage(
+  productId: number | string, 
+  imageId: number | string
+): Promise<any> {
+  const response = await http.delete(`/api/products/${productId}/images/${imageId}`);
+  return response.data;
+}
+
+
+
+export async function getStockMovements(
+  productId: number | string, 
+  page: number = 1
+): Promise<any> {
+  const response = await http.get(`/api/products/${productId}/stock-movements`, {
+    params: { 
+      per_page: 20,
+      page: page 
+    }
+  });
+  // El back incluye user.name para saber QUIÉN hizo el movimiento
+  return response.data;
+}
+
+
+export async function stockIn(
+  productId: number | string, 
+  quantity: number, 
+  reason: string
+): Promise<any> {
+  const response = await http.post(`/api/products/${productId}/stock-in`, {
+    quantity, // ✅ Coincide con el back
+    reason    // ✅ Coincide con el back
   });
   return response.data;
 }
 
-export async function updateProduct(id: string, patch: UpdateProductPayload): Promise<ApiResponse<ProductWithDetails>> {
-  const response = await http.put(`/admin/products/${id}`, patch, {
-    headers: {
-      "X-Tenant": TENANT_ID,
-      "Content-Type": "application/json",
-    },
+
+export async function stockOut(
+  productId: number | string, 
+  quantity: number, 
+  reason: string
+): Promise<any> {
+  // Nota: El back puede devolver 422 si intentás sacar más de lo que hay
+  const response = await http.post(`/api/products/${productId}/stock-out`, {
+    quantity,
+    reason
   });
   return response.data;
 }
-
-// Soft delete (Laravel): active=false en el back
-export async function deactivateProduct(id: string): Promise<ApiResponse<null>> {
-  const response = await http.delete(`/admin/products/${id}`, {
-    headers: {
-      "X-Tenant": TENANT_ID,
-      "Content-Type": "application/json",
-    },
-  });
-  return response.data;
-}
-*/
-
-
-// ========================================
-// FETCH VERSION (SIN AXIOS)
-// ========================================
-
-/*
-const API_BASE = "https://api.techstore.com";
-const TENANT_ID = "techstore";
-
-export async function listProducts(query?: ProductsQuery): Promise<ApiResponse<ProductWithDetails[]>> {
-  const params = new URLSearchParams();
-
-  if (query?.search) params.set("search", query.search);
-  if (query?.category) params.set("category", query.category); // ✅ Filtro por ID de categoría
-  if (query?.status && query.status !== "all") params.set("status", query.status);
-
-  const res = await fetch(`${API_BASE}/admin/products?${params.toString()}`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      "X-Tenant": TENANT_ID,
-    },
-  });
-
-  if (!res.ok) throw new Error("Error listando productos del catálogo");
-  return await res.json();
-}
-
-export async function createProduct(payload: CreateProductPayload): Promise<ApiResponse<ProductWithDetails>> {
-  const res = await fetch(`${API_BASE}/admin/products`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "X-Tenant": TENANT_ID,
-    },
-    body: JSON.stringify(payload),
-  });
-
-  if (!res.ok) throw new Error("Error creando producto");
-  return await res.json();
-}
-
-export async function updateProduct(id: string, patch: UpdateProductPayload): Promise<ApiResponse<ProductWithDetails>> {
-  const res = await fetch(`${API_BASE}/admin/products/${id}`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      "X-Tenant": TENANT_ID,
-    },
-    body: JSON.stringify(patch),
-  });
-
-  if (!res.ok) throw new Error("Error actualizando producto");
-  return await res.json();
-}
-
-export async function deactivateProduct(id: string): Promise<ApiResponse<null>> {
-  const res = await fetch(`${API_BASE}/admin/products/${id}`, {
-    method: "DELETE",
-    headers: {
-      "Content-Type": "application/json",
-      "X-Tenant": TENANT_ID,
-    },
-  });
-
-  if (!res.ok) throw new Error("Error desactivando producto");
-  return await res.json();
-}
-*/
+ */
