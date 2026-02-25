@@ -9,11 +9,14 @@ import { getProducts } from '../../products/services/products.mock';
 import { useLanguage } from '../../../shared/context/LanguageContext';
 import type { Product } from '../../../core/entities/Product';
 import { ProductSkeleton } from '../../products/components/ProductSkeleton';
+import { listProductss } from '../../../api/product.service';
 
 export const Home = () => {
   const { t } = useLanguage();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+
+  
 
   useEffect(() => {
     const fetchData = async () => {
@@ -26,6 +29,18 @@ export const Home = () => {
       }
     };
     fetchData();
+
+    const fechTest = async () => {
+      try {
+        const list = await listProductss();
+        console.log("list", list)
+      }
+       catch (error) {
+        console.log("Error en peticion", error);
+      }
+    }
+    fechTest();
+      
   }, []);
 
   return (

@@ -1,4 +1,5 @@
 import { MOCK_PRODUCTS_DB, PRODUCT_SPECS_DB } from "../shared/mocks/producto.mock";
+import apiClient from "./apiClient";
 import type {
   ApiResponse,
   CreateProductPayload,
@@ -138,19 +139,11 @@ export async function deactivateProduct(id: string): Promise<ApiResponse<null>> 
 // REAL IMPLEMENTATION (FUTURO - GATEWAY / AXIOS)
 // ========================================
 
-/*
-import axios from "axios";
 
-export const http = axios.create({
-  baseURL: "https://api.techstore.com", // La URL de tu backender
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
 
 // GET: Lista paginada con filtros avanzados
-export async function listProducts(query?: any): Promise<any> {
-  const response = await http.get("/api/products", {
+export async function listProductss(query?: any): Promise<any> {
+  const response = await apiClient.get("/api/products", {
     params: {
       tenant_id: query?.tenant_id,
       branch_id: query?.branch_id,
@@ -165,7 +158,7 @@ export async function listProducts(query?: any): Promise<any> {
   return response.data;
 }
 
-
+/*
 
 // POST: Crear producto (Genera movimiento de stock inicial 'in')
 export async function createProduct(payload: any): Promise<any> {
