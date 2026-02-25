@@ -102,7 +102,7 @@ function sleep() {
 
 export async function registerCustomers(payload: any): Promise<any> {
   const backendBody = {
-    tenant_id: payload.tenant_id, // Obligatorio del store
+    tenant_id: "1", // Obligatorio del store
     name: payload.name,
     dni: payload.dni,
     phone: payload.phone,
