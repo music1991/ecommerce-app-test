@@ -4,6 +4,7 @@
 // ========================================
 
 import { MOCK_CUSTOMERS_AUTH_DB, type CustomerAuthUser } from "../shared/mocks/customersAuth.mock";
+import apiClient from "./apiClient";
 import type { CustomerRegisterPayload, CustomerRegisterResponse } from "./types/customer.types";
 
 export async function listCustomers(params: { search?: string; tenant_id?: number; per_page?: number }) {
@@ -97,17 +98,9 @@ export async function registerCustomer(
 function sleep() {
   throw new Error("Function not implemented.");
 }
-/*
-import axios from "axios";
 
-export const http = axios.create({
-  baseURL: "https://api.techstore.com", // La URL de tu backender
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
 
-export async function registerCustomer(payload: any): Promise<any> {
+export async function registerCustomers(payload: any): Promise<any> {
   const backendBody = {
     tenant_id: payload.tenant_id, // Obligatorio del store
     name: payload.name,
@@ -118,10 +111,10 @@ export async function registerCustomer(payload: any): Promise<any> {
     estado: payload.status || "activo" // Mapeamos status -> estado
   };
 
-  const response = await http.post("/api/customers", backendBody);
+  const response = await apiClient.post("/api/customers", backendBody);
   return response.data;
 }
-
+/*
 export async function listCustomers(params: { tenant_id: number; search?: string; estado?: string }) {
   const response = await http.get("/api/customers", { 
     params: {

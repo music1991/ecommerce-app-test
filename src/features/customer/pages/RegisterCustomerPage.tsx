@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 
-import { registerCustomer } from "../../../api/customer.service";
+import { registerCustomer, registerCustomers } from "../../../api/customer.service";
 import PasswordRequirements from "../../../shared/components/PasswordRequirement";
 import PasswordInput from "../../../shared/components/PasswordInput";
 import { useNavigate } from "react-router-dom";
@@ -79,7 +79,7 @@ export const RegisterCustomerPage = () => {
         status: status,
       };
 
-      const res = await registerCustomer(payload);
+      const res = await registerCustomers(payload);
 
       setSuccessMsg(res.message || "Cliente registrado correctamente.");
       setForm({
