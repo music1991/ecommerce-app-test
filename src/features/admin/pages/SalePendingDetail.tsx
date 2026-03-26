@@ -7,7 +7,6 @@ import {
   Plus,
   Trash2,
   UserRound,
-  Store,
   CreditCard,
   Send,
 } from "lucide-react";
@@ -16,6 +15,7 @@ import { useSalesStore, type Sale, type SaleItem } from "../../sales/store/useSa
 import { MOCK_PRODUCTS } from "../../products/services/products.mock";
 import type { SaleActorType } from "../../../api/types/sales.types";
 import { getActiveCashRegister } from "../../../api/cash.service";
+import { SalePaymentModal } from "../components/SalePaymentModal";
 
 export const SalePendingDetail = () => {
   const navigate = useNavigate();
@@ -32,18 +32,19 @@ export const SalePendingDetail = () => {
   const [productSearch, setProductSearch] = useState("");
   const [assignEmployeeId, setAssignEmployeeId] = useState("");
 
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+
   const setSaleCashRegister = useSalesStore((s) => s.setSaleCashRegister);
 
-  // --- AUTO-ASOCIACIÓN DE CAJA AL CARGAR ---
   useEffect(() => {
     const linkRegister = async () => {
-     console.log("llega 1")
+      console.log("llega 1");
       if (sale && !sale.cash_register_id && sale.status !== "completada") {
         const res = await getActiveCashRegister();
-    console.log("llega 2", res)
+        console.log("llega 2", res);
         if (res.success && res.data) {
           console.log(`Asociando venta #${sale.id} a la caja #${res.data.id}`);
-          // Usamos la nueva función del store que creamos antes
           setSaleCashRegister(sale.id, res.data.id);
         }
       }
@@ -52,12 +53,9 @@ export const SalePendingDetail = () => {
     linkRegister();
   }, [saleId, sale?.cash_register_id]);
 
-
   useEffect(() => {
-    console.log(sale)
-  }, [sale])
-
-
+    console.log(sale);
+  }, [sale]);
 
   const money = (n: number) =>
     new Intl.NumberFormat("es-AR", {
@@ -114,15 +112,15 @@ export const SalePendingDetail = () => {
     const nextItems = existing
       ? sale.items.map((x) => (x.id === p.id ? { ...x, quantity: x.quantity + 1 } : x))
       : [
-        ...sale.items,
-        {
-          id: p.id,
-          name: p.name,
-          price: p.price,
-          quantity: 1,
-          images: p.images,
-        },
-      ];
+          ...sale.items,
+          {
+            id: p.id,
+            name: p.name,
+            price: p.price,
+            quantity: 1,
+            images: p.images,
+          },
+        ];
 
     setItems(nextItems);
   };
@@ -160,6 +158,49 @@ export const SalePendingDetail = () => {
     });
   }, [productSearch]);
 
+  const handleOpenPaymentModal = () => {
+    if (!sale) return;
+    if (sale.status === "completada") return;
+    setIsPaymentModalOpen(true);
+  };
+
+  const handleClosePaymentModal = () => {
+    if (isProcessingPayment) return;
+    setIsPaymentModalOpen(false);
+  };
+
+  const handleCompleteWithCash = async (payload: {
+    amountReceived: number;
+    change: number;
+  }) => {
+    if (!sale) return;
+
+    try {
+      setIsProcessingPayment(true);
+
+      await completeSale(sale.id, {
+        actorType: "employee" as SaleActorType,
+        actorId: "emp-001",
+        actorName: "Empleado (Mock)",
+        actorEmail: "",
+      });
+
+      setIsPaymentModalOpen(false);
+      navigate(`/admin/sales/bill/${sale.id}`);
+    } catch (error) {
+      console.error(error);
+      alert("No se pudo completar la venta.");
+    } finally {
+      setIsProcessingPayment(false);
+    }
+  };
+
+  const handleContinueWithMercadoPago = () => {
+    if (!sale) return;
+   // setIsPaymentModalOpen(false);
+   // navigate(`/admin/sales/payment/${sale.id}`);
+  };
+
   if (!sale) {
     return (
       <div className="p-10 text-slate-600">
@@ -195,38 +236,21 @@ export const SalePendingDetail = () => {
             <div className="mt-2 flex items-center gap-3">
               {statusPill(sale.status)}
               <p className="text-slate-500 font-medium">
-                {sale.actorType} • {sale.actorName || sale.actorId} • {new Date(sale.createdAt).toLocaleString()}
+                {sale.actorType} • {sale.actorName || sale.actorId} •{" "}
+                {new Date(sale.createdAt).toLocaleString()}
               </p>
             </div>
           </div>
         </div>
 
         <div className="flex flex-wrap gap-2 justify-end">
-          {/*           <button
-            onClick={() => markFinalizeInLocal(sale.id)}
-            disabled={!canEdit}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-xs border border-amber-200 bg-amber-50 text-amber-900 hover:bg-amber-100 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <Store size={16} /> Finalizar en local
-          </button> */}
-
           <button
-            onClick={async () => {
-              await completeSale(sale.id, {
-                actorType: "employee" as SaleActorType,
-                actorId: "emp-001",
-                actorName: "Empleado (Mock)",
-                actorEmail: ""
-              });
-
-              navigate(`/admin/sales/bill/${sale.id}`);
-            }}
+            onClick={handleOpenPaymentModal}
             disabled={!canEdit}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-xs bg-emerald-600 text-green-500 hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-xs !bg-emerald-600 text-white hover:!bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
           >
             <CreditCard size={16} /> Completar
           </button>
-
         </div>
       </div>
 
@@ -352,9 +376,7 @@ export const SalePendingDetail = () => {
 
             <div className="p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredCatalog.slice(0, 12).map((p: any) => (
-                <div
-                  key={p.id} className="text-left group rounded-2xl border border-slate-200 p-4 "
-                >
+                <div key={p.id} className="text-left group rounded-2xl border border-slate-200 p-4 ">
                   <div className="flex items-center gap-4">
                     <img
                       src={safeImage(p.images)}
@@ -370,7 +392,8 @@ export const SalePendingDetail = () => {
                   <button
                     disabled={!canEdit}
                     onClick={() => addProduct(p)}
-                    className="mt-3 text-xs text-white !bg-blue-500 px-5 py-1 rounded-2xl flex justify-center disabled:opacity-50 disabled:cursor-not-allowed">
+                    className="mt-3 text-xs text-white !bg-blue-500 px-5 py-1 rounded-2xl flex justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
                     Agregar
                   </button>
                 </div>
@@ -427,7 +450,8 @@ export const SalePendingDetail = () => {
                     <p className="font-black text-emerald-900">Completada por</p>
                   </div>
                   <p className="text-sm text-emerald-800 mt-1">
-                    {sale.completedBy.actorName || sale.completedBy.actorId} ({sale.completedBy.actorType})
+                    {sale.completedBy.actorName || sale.completedBy.actorId} (
+                    {sale.completedBy.actorType})
                   </p>
                 </div>
               )}
@@ -462,12 +486,24 @@ export const SalePendingDetail = () => {
               </button>
 
               <p className="text-xs text-slate-500">
-                Cuando está en “finalizar en local”, un empleado puede tomarla, derivarla o completarla.
+                Cuando está en “finalizar en local”, un empleado puede tomarla, derivarla o
+                completarla.
               </p>
             </div>
           </div>
         </div>
       </div>
+
+      <SalePaymentModal
+        isOpen={isPaymentModalOpen}
+        onClose={handleClosePaymentModal}
+        total={Number(sale.total || 0)}
+        customerName={sale.actorName || sale.actorId || "Cliente"}
+        employeeName={sale.assignedToEmployeeId || "Empleado (Mock)"}
+        isLoading={isProcessingPayment}
+        onConfirmCash={handleCompleteWithCash}
+        onContinueMercadoPago={handleContinueWithMercadoPago}
+      />
     </div>
   );
 };

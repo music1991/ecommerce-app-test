@@ -19,6 +19,7 @@ import { CategoriesManagement } from './features/admin/pages/CategoriesManagemen
 import { Categories } from './features/products/pages/Categories';
 import { CashManagement } from './features/admin/pages/CashManagement';
 import { BillPage } from './features/admin/pages/BillPage';
+import { ReportsPage } from './features/admin/pages/Report';
 
 function App() {
   const { isAuthenticated, user } = useAuthStore();
@@ -61,6 +62,7 @@ function App() {
             <Route path="/admin/categories" element={<CategoriesManagement />} />
             <Route path="/admin/cash" element={<CashManagement />} />
             <Route path="/admin/sales/bill/:id" element={<BillPage />} />
+            <Route path="/admin/reports" element={<ReportsPage />} />
           </Route>
         </Route>
 

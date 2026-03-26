@@ -4,7 +4,8 @@ import {
   LayoutDashboard, ShoppingBag, Users, UserRoundCog, 
   ChevronRight, Home, BadgeDollarSign, ChevronDown, FolderTree, 
   ListFilterPlus,
-  ReceiptText
+  ReceiptText,
+  BarChart3
 } from 'lucide-react';
 import { useAuthStore } from '../../auth/store/authStore';
 
@@ -34,6 +35,7 @@ export const AdminSidebar = () => {
     { path: '/admin/clients', icon: Users, label: 'Clientes' },
     { path: '/admin/cash', icon: BadgeDollarSign, label: 'Caja' },
     { path: '/admin/sales/list', icon: ReceiptText, label: 'Ventas' },
+    { path: '/admin/reports', icon: BarChart3, label: 'Reportes' },
   ];
 
   return (
